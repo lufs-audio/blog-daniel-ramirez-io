@@ -1,24 +1,223 @@
 /*
- * DESIGN TOKENS — placeholder owned by Amacher.
+ * ============================================================================
+ * THROWAWAY FRONTEND — disposable design pass by Ciani (2026-07-17).
+ * ============================================================================
+ * This file exists so Daniel can BROWSE the scaffold's structure. It is NOT the
+ * brand. Amacher replaces this wholesale with the LUFS Brand Design System.
  *
- * Ciani's scaffold imports this file (via BaseLayout) and makes ZERO styling
- * decisions. Amacher replaces this with the LUFS Brand Design System: color
- * tokens, type scale, spacing, and the component styles for the chrome
- * (.site-sidebar / .site-nav / .site-socials), the lists (.post-list /
- * .resource-list), and the prose slot (.prose — headings, code blocks, tables,
- * and the injected <audio>/<video>/<iframe> players).
- *
- * The old Hugo `poison` palette (dark mode, #268BD2 link accent, cream content
- * background) is intentionally NOT carried over — the LUFS brand replaces it.
+ * Everything here is changeable: palette, type, spacing, the sidebar look, all
+ * of it. What matters (and what this deliberately leaves untouched) is the set
+ * of class HOOKS the scaffold exposes — .site-sidebar / .site-nav /
+ * .site-socials / .site-main / .post / .post__title / .post__date / .prose /
+ * .post-list / .resource-list. Restyle those and the whole site re-skins with
+ * zero structural change.
+ * ============================================================================
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 :root {
-  /* Amacher: LUFS brand tokens go here. */
+  /* Placeholder palette — a quiet nod to LUFS teal/blue, NOT the final tokens. */
+  --bg: #0e0f11;
+  --surface: #141619;
+  --surface-2: #1b1e23;
+  --border: #2a2e35;
+  --text: #e7e9ec;
+  --muted: #9aa1a9;
+  --faint: #6b727b;
+  --accent: #78beba;      /* LUFS teal */
+  --accent-2: #2069af;    /* LUFS blue */
+  --link: #8fd0cc;
+  --danger: #d35233;
+
+  --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --measure: 68ch;
+  --sidebar-w: 264px;
+  --radius: 10px;
+
   color-scheme: dark;
 }
 
-/* Minimal reset so the unstyled scaffold is legible during development only. */
-* { box-sizing: border-box; }
-body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.6; }
-.site-main { padding: 2rem clamp(1rem, 5vw, 4rem); max-width: 72ch; }
-img { max-width: 100%; height: auto; }
+/* ---- reset ---- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 17px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img, video, iframe { max-width: 100%; }
+a { color: var(--link); text-underline-offset: 2px; }
+a:hover { color: var(--accent); }
+
+/* ---- app shell: sidebar + main ---- */
+body {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+
+.site-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 2.25rem 1.5rem;
+  background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.site-brand img {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  object-fit: cover;
+}
+.site-brand__name { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; }
+.site-brand__tagline { margin: -0.75rem 0 0; color: var(--muted); font-size: 0.9rem; }
+
+.site-nav ul, .site-socials { list-style: none; margin: 0; padding: 0; }
+.site-nav li { margin: 0.15rem 0; }
+.site-nav a {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 500;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.site-nav a:hover { background: var(--surface-2); color: var(--accent); }
+
+.site-socials {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.site-socials a { color: var(--muted); font-size: 0.85rem; text-decoration: none; }
+.site-socials a:hover { color: var(--accent); }
+
+/* ---- main column ---- */
+.site-main {
+  padding: 3.5rem clamp(1.25rem, 5vw, 4.5rem);
+  width: 100%;
+  max-width: calc(var(--measure) + 8vw);
+}
+.site-main > h1 { font-size: 2rem; letter-spacing: -0.02em; margin: 0 0 1.5rem; }
+
+/* ---- post list ---- */
+.post-list, .resource-list { list-style: none; margin: 0; padding: 0; }
+.post-list__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.post-list__item a { font-size: 1.1rem; font-weight: 600; text-decoration: none; color: var(--text); }
+.post-list__item a:hover { color: var(--accent); }
+.post-list__item time { color: var(--faint); font-size: 0.85rem; font-family: var(--font-mono); white-space: nowrap; }
+.resource-list li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+
+/* ---- article ---- */
+.post { max-width: var(--measure); }
+.post__header { margin-bottom: 2rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.post__title { font-size: 2.4rem; line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 0.6rem; }
+.post__date { color: var(--faint); font-family: var(--font-mono); font-size: 0.85rem; }
+
+/* ---- prose ---- */
+.prose { max-width: var(--measure); }
+.prose > * + * { margin-top: 1.15rem; }
+.prose h2 { font-size: 1.5rem; letter-spacing: -0.015em; margin-top: 2.5rem; }
+.prose h3 { font-size: 1.2rem; margin-top: 2rem; }
+.prose h4 { font-size: 1.02rem; color: var(--muted); margin-top: 1.5rem; }
+.prose a { color: var(--link); }
+.prose img {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  display: block;
+  margin: 1.5rem auto;
+}
+.prose figure { margin: 1.5rem 0; }
+.prose em { color: var(--muted); }
+.prose blockquote {
+  margin: 1.5rem 0;
+  padding: 0.5rem 1.2rem;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  border-radius: 0 8px 8px 0;
+  color: var(--muted);
+}
+.prose ul, .prose ol { padding-left: 1.4rem; }
+.prose li { margin: 0.3rem 0; }
+.prose hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+/* code */
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.1em 0.4em;
+}
+.prose pre {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+/* tables */
+.prose table { width: 100%; border-collapse: collapse; font-size: 0.92rem; margin: 1.5rem 0; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+.prose th { background: var(--surface-2); font-weight: 600; }
+.prose tr:nth-child(even) td { background: var(--surface); }
+
+/* injected media players (media.py) + embeds */
+.prose audio, .prose video { width: 100%; margin: 1.5rem 0; border-radius: var(--radius); }
+.prose iframe { border-radius: var(--radius); border: 1px solid var(--border); margin: 1.5rem 0; }
+
+/* footnotes (remark-gfm) */
+.prose .footnotes { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--muted); }
+
+/* ---- responsive: stack the sidebar ---- */
+@media (max-width: 820px) {
+  body { grid-template-columns: 1fr; }
+  .site-sidebar {
+    position: static; height: auto;
+    flex-direction: row; flex-wrap: wrap; align-items: center;
+    gap: 0.75rem 1.25rem;
+    border-right: none; border-bottom: 1px solid var(--border);
+    padding: 1.1rem 1.25rem;
+  }
+  .site-brand__tagline { display: none; }
+  .site-nav { order: 3; width: 100%; }
+  .site-nav ul { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; }
+  .site-socials { margin: 0 0 0 auto; padding: 0; border: none; }
+  .site-main { padding: 2rem 1.25rem; }
+}
