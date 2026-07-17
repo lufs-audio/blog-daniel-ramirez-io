@@ -1,0 +1,24 @@
+/*
+ * DESIGN TOKENS — placeholder owned by Amacher.
+ *
+ * Ciani's scaffold imports this file (via BaseLayout) and makes ZERO styling
+ * decisions. Amacher replaces this with the LUFS Brand Design System: color
+ * tokens, type scale, spacing, and the component styles for the chrome
+ * (.site-sidebar / .site-nav / .site-socials), the lists (.post-list /
+ * .resource-list), and the prose slot (.prose — headings, code blocks, tables,
+ * and the injected <audio>/<video>/<iframe> players).
+ *
+ * The old Hugo `poison` palette (dark mode, #268BD2 link accent, cream content
+ * background) is intentionally NOT carried over — the LUFS brand replaces it.
+ */
+
+:root {
+  /* Amacher: LUFS brand tokens go here. */
+  color-scheme: dark;
+}
+
+/* Minimal reset so the unstyled scaffold is legible during development only. */
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; line-height: 1.6; }
+.site-main { padding: 2rem clamp(1rem, 5vw, 4rem); max-width: 72ch; }
+img { max-width: 100%; height: auto; }

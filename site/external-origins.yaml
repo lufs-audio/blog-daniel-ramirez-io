@@ -1,0 +1,10 @@
+# Cross-origin services the artifact talks to. The blog depends on NONE at runtime
+# (it is a clean Tier B static site). The entries below are informational embeds
+# (iframes) that degrade gracefully if unavailable.
+external_origins:
+  - id: echobridge-embed
+    url: https://echobridge.lufs.audio
+    required: false
+  - id: albumdujour-embed
+    url: https://www.albumdujour.lufs.audio
+    required: false

@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "id": "index_exists",
+      "status": "passed"
+    },
+    {
+      "id": "required_routes",
+      "status": "passed",
+      "missing": []
+    },
+    {
+      "id": "url_parity",
+      "status": "passed",
+      "missing": []
+    },
+    {
+      "id": "asset_size_budget",
+      "status": "passed",
+      "max_bytes": 26214400,
+      "offenders": []
+    },
+    {
+      "id": "secret_scan",
+      "status": "passed",
+      "offenders": []
+    }
+  ]
+}

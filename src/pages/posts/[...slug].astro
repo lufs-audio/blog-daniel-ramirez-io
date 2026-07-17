@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content';
+import { hugoSlug } from '../../lib/slug';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+// URL parity: the slug is derived from the post TITLE (Hugo's algorithm), not the
+// filename — so /posts/<slug>/ matches the live site exactly. See src/lib/slug.ts.
+export async function getStaticPaths() {
+  const posts = await getCollection('posts', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: hugoSlug(post.data.title) },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<PostLayout
+  title={post.data.title}
+  date={post.data.date}
+  description={post.data.description}
+>
+  <Content />
+</PostLayout>

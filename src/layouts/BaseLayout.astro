@@ -1,0 +1,74 @@
+---
+/**
+ * BaseLayout — the page shell and site chrome (sidebar + nav).
+ * STUBBED FOR AMACHER: markup is semantic and unstyled on purpose. All identity
+ * data comes from src/config/site.ts; design tokens come from src/styles/tokens.css.
+ * Ciani wires the data; Amacher owns every pixel below.
+ */
+import { site } from '../config/site';
+import '../styles/tokens.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = site.description } = Astro.props;
+const pageTitle = title === site.brand ? site.brand : `${title} · ${site.brand}`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href={site.favicon} />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={site.brand}
+      href={site.feedUrl}
+    />
+    <link rel="canonical" href={new URL(Astro.url.pathname, site.canonicalUrl)} />
+  </head>
+  <body>
+    <!-- SEAM: sidebar chrome. Amacher themes; data is site.config.ts -->
+    <aside class="site-sidebar">
+      <a href="/" class="site-brand">
+        <img src={site.brandImage} alt={site.brand} width="96" height="96" />
+        <span class="site-brand__name">{site.brand}</span>
+      </a>
+      <p class="site-brand__tagline">{site.description}</p>
+
+      <nav class="site-nav" aria-label="Primary">
+        <ul>
+          {site.menu.map((item) => (
+            <li>
+              <a
+                href={item.url}
+                {...(item.external
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {})}
+              >
+                {item.name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <ul class="site-socials">
+        {site.socials.map((s) => (
+          <li>
+            <a href={s.url} target="_blank" rel="noopener noreferrer">{s.label}</a>
+          </li>
+        ))}
+      </ul>
+    </aside>
+
+    <main class="site-main">
+      <slot />
+    </main>
+  </body>
+</html>
