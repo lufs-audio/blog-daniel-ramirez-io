@@ -1,0 +1,82 @@
+---
+/**
+ * Hero — the contained masthead band: a hover-gated particle mesh (Canvas2D,
+ * zero-dep, Tier B), a live date/time eyebrow linking to time.lufs.audio, the
+ * page title, an optional lead, and an optional command-line ticker.
+ */
+interface Props {
+  title: string;
+  lead?: string;
+  terminal?: boolean;
+}
+const { title, lead, terminal = false } = Astro.props;
+---
+
+<header class="masthead reveal">
+  <canvas class="masthead__viz" id="viz" aria-hidden="true"></canvas>
+  <div class="masthead__veil"></div>
+  <div class="masthead__inner">
+    <a class="meta-live" id="metaLive" href="https://time.lufs.audio" target="_blank" rel="noopener noreferrer" data-hover>—</a>
+    <h1 class="masthead__title">{title}<span class="dot">.</span></h1>
+    {lead && <p class="masthead__lead">{lead}</p>}
+    {terminal && (
+      <div class="termline" id="termline"><span class="p">daniel@blog</span>:<span class="a">~</span>$ <span id="termtext"></span><span class="blk"></span></div>
+    )}
+  </div>
+</header>
+
+<script is:inline>
+  (function () {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---- hover-gated particle mesh ----
+    (function () {
+      var cv = document.getElementById('viz'); if (!cv) return;
+      var ctx = cv.getContext('2d'); if (!ctx) return;
+      var DPR = Math.min(window.devicePixelRatio || 1, 2);
+      var PAL = ['#d9a23d', '#e0836a', '#9fc1d0'];
+      var W = 1, H = 1, t = 0, P = [], over = false, eng = 0, tx = .5, ty = .5, cx = .5, cy = .5;
+      function hx(c, a) { var n = parseInt(c.slice(1), 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
+      function build() { P = []; var n = Math.min(150, Math.round(W / (13 * DPR))); for (var i = 0; i < n; i++) P.push({ x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, col: PAL[i % PAL.length] }); }
+      function size() { var r = cv.getBoundingClientRect(); W = cv.width = Math.max(1, r.width * DPR); H = cv.height = Math.max(1, r.height * DPR); build(); }
+      function frame() {
+        eng += ((over ? 1 : 0) - eng) * .06; cx += (tx - cx) * .06; cy += (ty - cy) * .06;
+        var px = (cx - .5) * eng, py = (cy - .5) * eng;
+        ctx.clearRect(0, 0, W, H);
+        var pts = P.map(function (p) { return { x: (0.06 + p.x * 0.88) * W + Math.sin(t * 0.7 + p.ph) * 10 * DPR + px * 34 * DPR, y: (0.12 + p.y * 0.76) * H + Math.cos(t * 0.6 + p.ph) * 8 * DPR + py * 24 * DPR, col: p.col }; });
+        var R = W * 0.11;
+        for (var i = 0; i < pts.length; i++) for (var j = i + 1; j < pts.length; j++) { var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, d = Math.hypot(dx, dy); if (d < R) { ctx.globalAlpha = (1 - d / R) * (0.10 + eng * 0.14); ctx.strokeStyle = hx(PAL[0], 1); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke(); } }
+        for (var k = 0; k < pts.length; k++) { var s = (1.8 + eng * 1.1) * DPR; ctx.globalAlpha = .55 + eng * .35; ctx.fillStyle = pts[k].col; ctx.beginPath(); ctx.arc(pts[k].x, pts[k].y, s, 0, 6.2832); ctx.fill(); }
+        ctx.globalAlpha = 1; t += 0.006; if (!reduce) requestAnimationFrame(frame);
+      }
+      try { size(); frame(); } catch (e) {}
+      try { new ResizeObserver(function () { try { size(); } catch (e) {} }).observe(cv); } catch (e) {}
+      cv.addEventListener('pointerenter', function () { over = true; });
+      cv.addEventListener('pointerleave', function () { over = false; });
+      cv.addEventListener('pointermove', function (e) { var r = cv.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; }, { passive: true });
+    })();
+
+    // ---- live date/time eyebrow (links to time.lufs.audio) ----
+    (function () {
+      var el = document.getElementById('metaLive'); if (!el) return;
+      function dt() { var d = new Date();
+        var wd = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        var mo = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        var tm = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return wd + ' ' + d.getDate() + ' ' + mo + ' · ' + tm; }
+      function paint() { el.innerHTML = '<span class="ml-dt">' + dt() + '</span><span class="ml-arrow">↗ time.lufs.audio</span>'; }
+      paint(); setInterval(paint, 1000);
+    })();
+
+    // ---- command-line ticker (home only) ----
+    (function () {
+      var el = document.getElementById('termtext'); if (!el) return;
+      var CMDS = ['ls posts/', 'cat echo-bridge-effects-pedal.md | render', 'git log --oneline -3', 'rsync obsidian/ src/content/  # sync', 'astro build && scripts/verify'];
+      if (reduce) { el.textContent = CMDS[0]; return; }
+      var ci = 0;
+      function type() { var cmd = CMDS[ci], pos = 0; var ti = setInterval(function () { pos++; el.textContent = cmd.slice(0, pos); if (pos >= cmd.length) { clearInterval(ti); setTimeout(del, 1500); } }, 58); }
+      function del() { var cmd = CMDS[ci], p = cmd.length; var di = setInterval(function () { p -= 2; el.textContent = cmd.slice(0, Math.max(0, p)); if (p <= 0) { clearInterval(di); ci = (ci + 1) % CMDS.length; setTimeout(type, 320); } }, 30); }
+      type();
+    })();
+  })();
+</script>

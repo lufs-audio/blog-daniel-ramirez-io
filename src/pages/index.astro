@@ -1,28 +1,21 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
-import { hugoSlug } from '../lib/slug';
 import { site } from '../config/site';
 
+// Data wiring unchanged: newest-first, drafts excluded.
 const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 ---
 
 <BaseLayout title={site.brand}>
-  <h1>Posts</h1>
-  <ul class="post-list">
-    {posts.map((post) => (
-      <li class="post-list__item">
-        <a href={`/posts/${hugoSlug(post.data.title)}/`}>{post.data.title}</a>
-        <time datetime={post.data.date.toISOString().slice(0, 10)}>
-          {post.data.date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          })}
-        </time>
-      </li>
-    ))}
-  </ul>
+  <Hero title="Posts" lead="Sound Design, Hardware, Scripts." terminal />
+  <div class="view-pad">
+    <ul class="post-list">
+      {posts.map((post, i) => <PostCard post={post} index={i} />)}
+    </ul>
+  </div>
 </BaseLayout>

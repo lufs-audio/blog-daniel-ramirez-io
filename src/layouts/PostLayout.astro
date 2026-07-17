@@ -1,32 +1,107 @@
 ---
 /**
- * PostLayout — a single article. STUBBED FOR AMACHER.
- * The rendered <slot /> is the "prose slot": headings, Shiki code blocks, tables,
- * and the raw <audio>/<video>/<iframe> players injected by media.py all render
- * here and all need brand styling. Wrapped in .prose so Amacher has one hook.
+ * PostLayout — a single article. The rendered <slot/> is the "prose slot":
+ * headings, Shiki code, tables, and the raw <audio>/<video>/<iframe> injected by
+ * media.py all render inside .prose. Named slot "after" holds post-content extras
+ * (e.g. About's webring + cloud), outside .prose.
+ *
+ * View source: pass `source` (raw markdown) to enable the Obsidian-style reader —
+ * a scroll-synced split pane on desktop, a slide-out panel on mobile.
  */
 import BaseLayout from './BaseLayout.astro';
+import { hugoSlug } from '../lib/slug';
 
 interface Props {
   title: string;
   date?: Date;
   description?: string;
+  source?: string;
+  showSource?: boolean;
+  /** Content wrapper class: 'prose' for articles, 'about-lead' for the About blurb. */
+  contentClass?: string;
 }
-const { title, date, description } = Astro.props;
+const { title, date, description, source, showSource = !!source, contentClass = 'prose' } = Astro.props;
 const dateISO = date ? date.toISOString().slice(0, 10) : undefined;
 const dateLabel = date
   ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : undefined;
+const sourceName = `${hugoSlug(title)}.md`;
 ---
 
 <BaseLayout title={title} description={description}>
-  <article class="post">
-    <header class="post__header">
-      <h1 class="post__title">{title}</h1>
-      {dateISO && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
-    </header>
-    <div class="prose">
-      <slot />
+  <div class="view-pad">
+    {showSource && (
+      <div class="post__bar reveal">
+        <a class="back-link" href="/posts/" data-hover>← All posts</a>
+        <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{'{ }'} View source</button>
+      </div>
+    )}
+
+    <div class="reader" id="reader">
+      <article class="post reader__rendered" id="rendered">
+        <header class="post__header reveal">
+          <h1 class="post__title">{title}</h1>
+          {dateISO && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
+        </header>
+        <div class={`${contentClass} reveal`}>
+          <slot />
+        </div>
+        <slot name="after" />
+      </article>
+
+      {showSource && (
+        <aside class="reader__source" id="sourcePane" aria-hidden="true">
+          <div class="reader__source-head">
+            <span><b>source</b> · {sourceName}</span>
+            <button class="source-x" id="srcClose" data-hover>esc ✕</button>
+          </div>
+          <pre id="srcPre">{source}</pre>
+        </aside>
+      )}
     </div>
-  </article>
+  </div>
+
+  {showSource && (
+    <script is:inline>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          reader.classList.toggle('split', on);
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) setupSync(); else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre></pre>';
+            document.body.appendChild(p);
+            var src = document.getElementById('srcPre'); p.querySelector('pre').textContent = src ? src.textContent : '';
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+      })();
+    </script>
+  )}
 </BaseLayout>
