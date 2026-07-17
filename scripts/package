@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Portable package step (website-portability contract). Verifies dist/, then
+# produces an immutable release: release/site + artifact.json + SHA256SUMS.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+: "${GIT_SHA:=$(git rev-parse HEAD 2>/dev/null || echo unknown)}"
+
+python3 scripts/verify
+
+rm -rf release
+mkdir -p release/site
+cp -R dist/. release/site/
+
+GIT_SHA="$GIT_SHA" python3 - <<'PY'
+import hashlib, json, os, pathlib
+root = pathlib.Path("release/site")
+files = sorted(p for p in root.rglob("*") if p.is_file())
+sha = hashlib.sha256()
+for path in files:
+    rel = path.relative_to(root).as_posix().encode()
+    data = path.read_bytes()
+    sha.update(len(rel).to_bytes(8, "big")); sha.update(rel)
+    sha.update(len(data).to_bytes(8, "big")); sha.update(data)
+manifest = {
+    "schema_version": 1,
+    "site_id": "blog-daniel-ramirez-io",
+    "source_commit": os.environ.get("GIT_SHA"),
+    "files": len(files),
+    "bytes": sum(p.stat().st_size for p in files),
+    "tree_sha256": sha.hexdigest(),
+}
+pathlib.Path("release/artifact.json").write_text(json.dumps(manifest, indent=2) + "\n")
+print("artifact.json:", manifest["tree_sha256"], manifest["files"], "files")
+PY
+
+cp verification.json release/verification.json 2>/dev/null || true
+( cd release && sha256sum site.tar.gz 2>/dev/null; true )
+tar -C release -czf release/site.tar.gz site
+( cd release && sha256sum site.tar.gz artifact.json verification.json > SHA256SUMS )
+echo "package: ok"

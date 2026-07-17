@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { hugoSlug } from '../../lib/slug';
+
+const items = (await getCollection('resources', ({ data }) => !data.draft)).sort(
+  (a, b) => a.data.title.localeCompare(b.data.title),
+);
+---
+
+<BaseLayout title="Resources">
+  <h1>Resources</h1>
+  <ul class="resource-list">
+    {items.map((item) => (
+      <li>
+        <a href={`/resources/${hugoSlug(item.data.title)}/`}>{item.data.title}</a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>

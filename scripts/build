@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Portable build step (website-portability contract). Builds ONCE into dist/.
+# The Obsidian -> content ingestion is a SEPARATE step the author runs locally
+# (sync_obsidian-to-astro.sh); CI only ever sees committed Markdown.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+if [ -f package-lock.json ]; then
+  npm ci
+else
+  npm install
+fi
+
+npm run build
+
+test -s dist/index.html || { echo "build: dist/index.html missing or empty"; exit 1; }
+echo "build: ok"

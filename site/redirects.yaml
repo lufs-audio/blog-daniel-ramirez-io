@@ -1,0 +1,5 @@
+# Provider-neutral redirect intent, translated per host adapter.
+# None required at launch. If the legacy danialrami.com/posts/* URLs need to fold
+# into blog.daniel-ramirez.io, add them here (host/DNS-level, coordinated with the
+# website-portability DNS cutover) rather than hardcoding in content.
+redirects: []

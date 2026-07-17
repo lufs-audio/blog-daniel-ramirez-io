@@ -1,0 +1,32 @@
+---
+/**
+ * PostLayout — a single article. STUBBED FOR AMACHER.
+ * The rendered <slot /> is the "prose slot": headings, Shiki code blocks, tables,
+ * and the raw <audio>/<video>/<iframe> players injected by media.py all render
+ * here and all need brand styling. Wrapped in .prose so Amacher has one hook.
+ */
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  date?: Date;
+  description?: string;
+}
+const { title, date, description } = Astro.props;
+const dateISO = date ? date.toISOString().slice(0, 10) : undefined;
+const dateLabel = date
+  ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : undefined;
+---
+
+<BaseLayout title={title} description={description}>
+  <article class="post">
+    <header class="post__header">
+      <h1 class="post__title">{title}</h1>
+      {dateISO && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>

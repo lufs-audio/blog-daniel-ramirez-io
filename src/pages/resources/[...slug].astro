@@ -1,0 +1,20 @@
+---
+import { getCollection, render } from 'astro:content';
+import { hugoSlug } from '../../lib/slug';
+import PostLayout from '../../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const items = await getCollection('resources', ({ data }) => !data.draft);
+  return items.map((item) => ({
+    params: { slug: hugoSlug(item.data.title) },
+    props: { item },
+  }));
+}
+
+const { item } = Astro.props;
+const { Content } = await render(item);
+---
+
+<PostLayout title={item.data.title} date={item.data.date}>
+  <Content />
+</PostLayout>

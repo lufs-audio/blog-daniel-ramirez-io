@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { hugoSlug } from '../../lib/slug';
+
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<BaseLayout title="Posts">
+  <h1>Posts</h1>
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li class="post-list__item">
+        <a href={`/posts/${hugoSlug(post.data.title)}/`}>{post.data.title}</a>
+        <time datetime={post.data.date.toISOString().slice(0, 10)}>
+          {post.data.date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </time>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
