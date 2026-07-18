@@ -1,0 +1,18 @@
+---
+import { getEntry, render } from 'astro:content';
+import PostLayout from '../layouts/PostLayout.astro';
+import Webring from '../components/Webring.astro';
+import CloudMark from '../components/CloudMark.astro';
+
+const entry = await getEntry('pages', 'about/about');
+if (!entry) throw new Error('about/about content entry not found');
+const { Content } = await render(entry);
+---
+
+<PostLayout title={entry.data.title} date={entry.data.date} contentClass="about-lead">
+  <Content />
+  <Fragment slot="after">
+    <Webring />
+    <CloudMark />
+  </Fragment>
+</PostLayout>

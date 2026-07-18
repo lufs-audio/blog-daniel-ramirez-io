@@ -1,0 +1,19 @@
+---
+/**
+ * Webring — reusable button reimplementing the archived Hugo inline-SVG webring
+ * as a proper component. Just the animating LUFS four-square block + prev/next
+ * affordance (no "member of…" label). Wire real hrefs when the ring is set up.
+ */
+interface Props {
+  prevUrl?: string;
+  nextUrl?: string;
+}
+const { prevUrl = '#', nextUrl = '#' } = Astro.props;
+---
+
+<div class="webring">
+  <a class="webring__btn" href={prevUrl} data-hover title="LUFS webring — previous / next">
+    <span class="webring__mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+    ← webring →
+  </a>
+</div>

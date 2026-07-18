@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Portable smoke test (website-portability contract). Serves dist/ and checks a
+# few routes return 200. Deploy adapters run their own deployed-URL checks too.
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$repo_root"
+
+port="${PORT:-8787}"
+python3 -m http.server "$port" --directory dist >/dev/null 2>&1 &
+server_pid=$!
+trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+sleep 1
+
+fail=0
+while IFS= read -r route; do
+  [ -z "$route" ] && continue
+  case "$route" in \#*) continue ;; esac
+  url="http://127.0.0.1:${port}${route}"
+  code="$(curl -s -o /dev/null -w '%{http_code}' "$url" || echo 000)"
+  if [ "$code" != "200" ]; then
+    echo "smoke: $route -> $code (expected 200)"; fail=1
+  else
+    echo "smoke: $route -> 200"
+  fi
+done < site/routes.txt
+
+[ "$fail" -eq 0 ] && echo "smoke: ok" || { echo "smoke: FAILED"; exit 1; }
