@@ -28,16 +28,18 @@ export interface SiteConfig {
   feedUrl: string;
 }
 
-// Favicon unified under the family cloud mark (same as resume.daniel-ramirez.io),
-// inlined as an SVG data URI so there's no binary to ship. Personal register.
-const CLOUD_FAVICON =
+// The family cloud mark (same as resume.daniel-ramirez.io), inlined as an SVG
+// data URI so there's no binary to ship — fully portable. Used for BOTH the
+// favicon and the sidebar avatar (dark disc + cream cloud), which kills the old
+// /images/fbf9e2_cloud-profile.png 404. Personal register.
+const CLOUD_MARK =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23201e1b'/%3E%3Cpath d='M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z' fill='%23e8e4d4'/%3E%3Ccircle cx='70' cy='100' r='15' fill='%23201e1b'/%3E%3Ccircle cx='130' cy='100' r='15' fill='%23201e1b'/%3E%3C/svg%3E";
 
 export const site: SiteConfig = {
   brand: 'Daniel Ramirez',
   description: 'Sound & Systems',
-  brandImage: '/images/fbf9e2_cloud-profile.png',
-  favicon: CLOUD_FAVICON,
+  brandImage: CLOUD_MARK,
+  favicon: CLOUD_MARK,
   canonicalUrl: 'https://blog.daniel-ramirez.io',
   menu: [
     { name: 'About', url: '/about/' },
