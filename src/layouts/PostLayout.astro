@@ -5,8 +5,10 @@
  * media.py all render inside .prose. Named slot "after" holds post-content extras
  * (e.g. About's webring + cloud), outside .prose.
  *
- * View source: pass `source` (raw markdown) to enable the Obsidian-style reader —
- * a scroll-synced split pane on desktop, a slide-out panel on mobile.
+ * View source: pass `source` (raw markdown) to enable the Obsidian-style reader.
+ * Desktop = a "seam-split" wipe: the reading pane FLIP-slides left (never reflows,
+ * width == measure) while the source clip-reveals from the seam; close reverses.
+ * Mobile = the slide-out panel (Drawer).
  */
 import BaseLayout from './BaseLayout.astro';
 import { hugoSlug } from '../lib/slug';
@@ -51,11 +53,13 @@ const sourceName = `${hugoSlug(title)}.md`;
 
       {showSource && (
         <aside class="reader__source" id="sourcePane" aria-hidden="true">
-          <div class="reader__source-head">
-            <span><b>source</b> · {sourceName}</span>
-            <button class="source-x" id="srcClose" data-hover>esc ✕</button>
+          <div class="src-inner">
+            <div class="reader__source-head">
+              <span><b>source</b> · {sourceName}</span>
+              <button class="source-x" id="srcClose" data-hover>esc ✕</button>
+            </div>
+            <pre id="srcPre">{source}</pre>
           </div>
-          <pre id="srcPre">{source}</pre>
         </aside>
       )}
     </div>
@@ -79,7 +83,19 @@ const sourceName = `${hugoSlug(title)}.md`;
         function toggleSplit(force) {
           var reader = document.getElementById('reader'); if (!reader) return;
           var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          // FLIP: keep the reading pane's on-screen position continuous so it
+          // slides (transform) rather than jumping when the layout changes.
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
           reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
           var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
           btn.setAttribute('aria-pressed', String(on));
           btn.textContent = on ? '✕ Close source' : '{ } View source';
