@@ -1,0 +1,38 @@
+---
+/**
+ * FreeformLayout — the escape hatch (`format: freeform`).
+ *
+ * Deliberately bare: it wraps BaseLayout (so the site nav, <head>, and brand
+ * still exist and the page is never orphaned) but drops the .prose measure and
+ * article chrome entirely. The body renders edge-to-edge and OWNS the page —
+ * bespoke HTML/MDX, custom <style>/<script>, whatever the one-off needs.
+ *
+ * This is the honest exception in the registry: a freeform post is hand-built,
+ * not authored as a plain Obsidian markdown note. Rare by design (17776 /
+ * Mystery Flesh Pit energy). View source is optional and off by default here —
+ * the "source" of a bespoke page isn't the friendly markdown the other formats
+ * keep. See FORMATS.md § freeform.
+ */
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <a class="back-link freeform-back" href="/posts/" data-hover>← All posts</a>
+  <div class="freeform-stage">
+    <slot />
+  </div>
+</BaseLayout>
+
+<style>
+  /* The stage owns the viewport; the body inside brings its own everything. */
+  .freeform-back{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}
+  .freeform-back:hover{color:var(--accent-txt)}
+  .freeform-stage{position:relative;min-height:100vh}
+  /* freeform posts style themselves; we only guarantee a clean, full-bleed canvas. */
+</style>
