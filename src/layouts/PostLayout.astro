@@ -6,13 +6,21 @@
  * (e.g. About's webring + cloud), outside .prose.
  *
  * View source: pass `source` (raw markdown) to enable the Obsidian-style reader.
- * Desktop = a "seam-split" wipe: the reading pane FLIP-slides left (never reflows,
- * width == measure) while the source clip-reveals from the seam; close reverses.
- * Mobile = the slide-out panel (Drawer).
+ * Desktop = a "seam-split" wipe; mobile = the slide-out panel. View source is
+ * format-agnostic — every markdown format keeps it, because the body is still
+ * markdown; `format` only changes the chrome around it (driven by frontmatter).
+ *
+ * format registry: `format` selects presentation. The per-format header/footer
+ * modules below are ALL driven by optional frontmatter — no new inline markup.
+ * `freeform` is the exception and uses FreeformLayout, not this file. See FORMATS.md.
  */
 import BaseLayout from './BaseLayout.astro';
 import { hugoSlug } from '../lib/slug';
+import type { Format } from '../lib/formats';
+import '../styles/formats.css';
 
+interface Source { title: string; url: string; meta?: string; }
+interface Spec { k: string; v: string; }
 interface Props {
   title: string;
   date?: Date;
@@ -21,13 +29,38 @@ interface Props {
   showSource?: boolean;
   /** Content wrapper class: 'prose' for articles, 'about-lead' for the About blurb. */
   contentClass?: string;
+  /** format registry (freeform routes to FreeformLayout, not this file) */
+  format?: Format;
+  dek?: string;
+  kicker?: string;
+  // build
+  repo?: string;
+  stack?: string[];
+  tldr?: string;
+  // dispatch
+  sources?: Source[];
+  // review
+  score?: number;
+  verdict?: string;
+  pros?: string[];
+  cons?: string[];
+  specs?: Spec[];
+  illustrative?: boolean;
 }
-const { title, date, description, source, showSource = !!source, contentClass = 'prose' } = Astro.props;
+const {
+  title, date, description, source, showSource = !!source, contentClass = 'prose',
+  format = 'standard', dek, kicker,
+  repo, stack = [], tldr,
+  sources = [],
+  score, verdict, pros = [], cons = [], specs = [], illustrative = false,
+} = Astro.props;
+
 const dateISO = date ? date.toISOString().slice(0, 10) : undefined;
 const dateLabel = date
   ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : undefined;
 const sourceName = `${hugoSlug(title)}.md`;
+const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -40,14 +73,64 @@ const sourceName = `${hugoSlug(title)}.md`;
     )}
 
     <div class="reader" id="reader">
-      <article class="post reader__rendered" id="rendered">
+      <article class="post reader__rendered" id="rendered" data-format={format}>
         <header class="post__header reveal">
+          {kicker && <p class="post__kicker"><span class="on">{kicker}</span>{dateLabel && <span>{dateLabel}</span>}</p>}
           <h1 class="post__title">{title}</h1>
-          {dateISO && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
+          {dateISO && !kicker && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
+          {dek && <p class="post__dek">{dek}</p>}
+
+          {format === 'dispatch' && (
+            <p class="byline"><span>By Daniel Ramirez</span>{dateISO && <time datetime={dateISO}>{dateLabel}</time>}</p>
+          )}
+          {illustrative && <div class="fmt-banner">Illustrative — placeholder copy &amp; figures to show the format</div>}
         </header>
+
+        {format === 'build' && (repo || tldr) && (
+          <>
+            {tldr && <p class="tldr"><b>What this is</b>{tldr}</p>}
+            {repo && (
+              <div class="repo-card">
+                <a class="rc-repo" href={repo} target="_blank" rel="noopener noreferrer">
+                  <span class="g">{repoLabel?.split('/')[0]}/</span>{repoLabel?.split('/').slice(1).join('/')}
+                </a>
+                {stack.length > 0 && <ul class="chips">{stack.map((s) => <li class="chip">{s}</li>)}</ul>}
+                <span class="rc-clone"><span class="p">$</span> git clone {repo}</span>
+              </div>
+            )}
+          </>
+        )}
+
+        {format === 'review' && (score != null || verdict) && (
+          <div class="verdict-mod">
+            {score != null && <div class="score">{score}<small>/ 10 · verdict</small></div>}
+            <div class="vtext"><p class="vl">The verdict</p><p>{verdict}</p></div>
+          </div>
+        )}
+        {format === 'review' && (pros.length > 0 || cons.length > 0) && (
+          <div class="goodbad">
+            <div class="box good"><h4>The good</h4><ul>{pros.map((p) => <li>{p}</li>)}</ul></div>
+            <div class="box bad"><h4>The bad</h4><ul>{cons.map((c) => <li>{c}</li>)}</ul></div>
+          </div>
+        )}
+
         <div class={`${contentClass} reveal`}>
           <slot />
         </div>
+
+        {format === 'review' && specs.length > 0 && (
+          <table class="spec-table"><tbody>{specs.map((s) => <tr><th>{s.k}</th><td set:html={s.v} /></tr>)}</tbody></table>
+        )}
+
+        {format === 'dispatch' && sources.length > 0 && (
+          <footer class="post-sources">
+            <h2>Sources</h2>
+            <ol>{sources.map((s) => (
+              <li><a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a>{s.meta && <span class="src-meta">{s.meta}</span>}</li>
+            ))}</ol>
+          </footer>
+        )}
+
         <slot name="after" />
       </article>
 
@@ -83,8 +166,6 @@ const sourceName = `${hugoSlug(title)}.md`;
         function toggleSplit(force) {
           var reader = document.getElementById('reader'); if (!reader) return;
           var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
-          // FLIP: keep the reading pane's on-screen position continuous so it
-          // slides (transform) rather than jumping when the layout changes.
           var rendered = document.getElementById('rendered');
           var first = rendered ? rendered.getBoundingClientRect().left : 0;
           reader.classList.toggle('split', on);
