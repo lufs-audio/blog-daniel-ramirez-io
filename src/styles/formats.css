@@ -52,8 +52,9 @@
 
 /* ═══════════════ format: analysis — explainer / music analysis ═══════════════ */
 /* Sidenotes ride the right gutter on wide screens, fall inline on narrow. The
-   markup <span class="sn"><span class="note">…</span></span> is produced by the
-   `:::note` directive (remark plugin — see FORMATS.md) or hand-written in MDX. */
+   markup <span class="sn"><span class="note">…</span></span> is authored as inline
+   HTML in a plain .md file today (Astro raw-HTML passthrough); a friendlier
+   `:::note` directive is a deliberate future upgrade. See FORMATS.md. */
 .post[data-format="analysis"] .prose{position:relative}
 .sn{position:relative}
 .sn .note{background:var(--bg-alt);border-left:2px solid var(--blue);padding:.7rem .9rem;border-radius:0 6px 6px 0;display:block}

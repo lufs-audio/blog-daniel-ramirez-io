@@ -16,6 +16,7 @@
  */
 import BaseLayout from './BaseLayout.astro';
 import { hugoSlug } from '../lib/slug';
+import type { Format } from '../lib/formats';
 import '../styles/formats.css';
 
 interface Source { title: string; url: string; meta?: string; }
@@ -28,8 +29,8 @@ interface Props {
   showSource?: boolean;
   /** Content wrapper class: 'prose' for articles, 'about-lead' for the About blurb. */
   contentClass?: string;
-  /** format registry */
-  format?: 'standard' | 'build' | 'dispatch' | 'analysis' | 'review';
+  /** format registry (freeform routes to FreeformLayout, not this file) */
+  format?: Format;
   dek?: string;
   kicker?: string;
   // build

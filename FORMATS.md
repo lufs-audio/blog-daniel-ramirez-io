@@ -41,9 +41,11 @@ repo: https://github.com/danialrami/portfolio-reel
 stack: [Python, OBS, Bash, YAML]
 ```
 
-Body is normal markdown. Fenced code blocks render as captioned figures when your
-code fence carries a caption (handled by the media step); otherwise they render
-as normal code. **View source works** — the body is still your markdown.
+Body is normal markdown. The repo card, stack chips, TL;DR, and clone line are all
+**wired now** (frontmatter-driven). Captioned code figures are a *planned
+enhancement* — until a remark step (or `media.py`) wraps `<pre>` in
+`<figure class="code">`, fenced code renders as normal code blocks (graceful, not
+broken). **View source works** — the body is still your markdown.
 
 ## dispatch
 
@@ -67,23 +69,26 @@ directive). **View source works.**
 Figure- and note-led. Frontmatter is just `format: analysis` + optional `dek`/`kicker`.
 
 - **Footnotes** are standard markdown: `text[^1]` … `[^1]: the note.` No new syntax.
-- **Sidenotes / margin notes** are the one convention to learn. Author them with a
-  directive:
+- **Sidenotes / margin notes** — the one thing markdown has no native syntax for.
+  **Ships today as inline HTML in a plain `.md` file** (Astro's raw-HTML
+  passthrough is on — no MDX, no plugin needed):
 
-  ```md
-  :::note[Psychoacoustic masking]
-  Hiding protective noise beneath the threshold where louder sounds mask it.
-  :::
+  ```html
+  <span class="sn">The claim in the body.<span class="note">
+    <span class="lab">Margin · define</span>
+    <p>Psychoacoustic masking — noise hidden beneath the masking threshold.</p>
+  </span></span>
   ```
 
-  This compiles to the sidenote markup the CSS styles (right gutter on desktop,
-  inline on mobile). **Requires the `remark-directive` plugin** — see the PR notes;
-  until it's wired you can drop the equivalent HTML span inline (MDX).
-- **Figures** with captions: standard markdown image inside a `<figure>` / the
-  `:::figure` directive.
+  The CSS styles it into the right gutter on desktop, inline on mobile.
+  *Future, deliberate upgrade:* a friendlier `:::note[…]` directive, which needs
+  the `remark-directive` plugin — adopt it on purpose the day a real analysis post
+  makes the inline HTML annoying, not as a drive-by "follow-up."
+- **Figures** with captions: a standard markdown image inside a `<figure>` with a
+  `<figcaption>`.
 
-**View source still works** — the source shows your markdown with the `:::note`
-directives in place. It reads as markdown, because it is.
+**View source still works** — the source is your `.md`, inline sidenote spans and
+all. It reads as markup, because it is.
 
 ## review
 
@@ -116,3 +121,9 @@ not a plain Obsidian note**. Author it as an `.mdx`/`.astro` page.
 View source is off by default here — the "source" of a bespoke page isn't the
 friendly markdown the other formats keep. Rare by design; the enum value just
 keeps the door open.
+
+> **Note:** the first real `freeform` post is a deliberate build step. If it's
+> authored as `.mdx`/`.astro`, enable `@astrojs/mdx` first (not currently a
+> dependency) and widen the posts glob to include `.mdx`. Until then the enum
+> value and `FreeformLayout` are in place but inert — exactly the "reserved, door
+> open" state the reviewers asked for.

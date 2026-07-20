@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { POST_FORMATS } from './lib/formats';
 
 /**
  * The content collections ARE the registry (filesystem-as-registry): the tree
@@ -18,14 +19,16 @@ import { glob } from 'astro/loaders';
  * enum fails the build — the same gate we trust everywhere else. All per-format
  * fields below are OPTIONAL: authoring stays "write markdown + fill a few
  * frontmatter fields," never "learn a new markup language."  See FORMATS.md.
+ *
+ * The enum values live once in src/lib/formats.ts (imported here and by
+ * PostLayout) so the list can't drift across files.
  */
-
-const POST_FORMATS = ['standard', 'build', 'dispatch', 'analysis', 'review', 'freeform'] as const;
 
 // The blog. This schema is the contract Amacher's frontend reads — nothing else.
 const posts = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
-  schema: z.object({
+  loader: glob({ pattern: '**/*.md', base: './src/content/posts' }),
+  schema: z
+    .object({
     title: z.string(),
     date: z.coerce.date(),
     draft: z.boolean().default(false),
@@ -56,7 +59,29 @@ const posts = defineCollection({
     cons: z.array(z.string()).default([]),
     specs: z.array(z.object({ k: z.string(), v: z.string() })).default([]),
     illustrative: z.boolean().default(false),
-  }),
+    })
+    // Fail closed on cross-format field misuse: a `standard` post that sets
+    // `score` (or any other format-owned field) is almost certainly a mistake —
+    // catch it at build time rather than ship it silently. (Ciani's note.)
+    .superRefine((d, ctx) => {
+      const rec = d as Record<string, unknown>;
+      const guard = (wrongFormat: boolean, fields: string[], owner: string) => {
+        if (!wrongFormat) return;
+        for (const f of fields) {
+          const v = rec[f];
+          const isSet = Array.isArray(v) ? v.length > 0 : v !== undefined && v !== false;
+          if (isSet)
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: [f],
+              message: `\`${f}\` is only valid on format: ${owner} (this post is format: ${d.format})`,
+            });
+        }
+      };
+      guard(d.format !== 'build', ['repo', 'stack', 'tldr'], 'build');
+      guard(d.format !== 'dispatch', ['sources'], 'dispatch');
+      guard(d.format !== 'review', ['score', 'verdict', 'pros', 'cons', 'specs', 'illustrative'], 'review');
+    }),
 });
 
 // The /resources/ section (Books, Music, People, ...).
