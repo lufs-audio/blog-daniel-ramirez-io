@@ -23,6 +23,7 @@ import {
   findSlugCollision,
   resolveBlogSource,
   run,
+  CONTRACT_FINGERPRINT,
 } from './new-post.mjs';
 import { POST_FORMATS, FORMAT_FIELDS } from '../src/lib/formats.ts';
 import { hugoSlug } from '../src/lib/slug.ts';
@@ -141,4 +142,25 @@ test('all-punctuation title fails closed (empty URL slug)', async () => {
 
 test('missing title fails closed non-interactively', async () => {
   await assert.rejects(run(['--json'], { env: { BLOG_SOURCE: '/tmp' }, isTTY: false }), /Title is required/);
+});
+
+test('--dry-run --json needs no vault: succeeds with neither BLOG_SOURCE nor --dir', async () => {
+  // The zero-config automation seam (Oliveros's cron). A dry-run writes nothing,
+  // so it must not demand vault config.
+  const r = await run(['--title', 'Zero Config Draft', '--format', 'build', '--dry-run', '--json'], {
+    env: {},
+    isTTY: false,
+  });
+  assert.equal(r.wrote, false);
+  assert.equal(r.slug, 'zero-config-draft');
+  assert.match(r.content, /^draft: true$/m);
+  assert.match(r.content, /^format: build$/m);
+  // path is informational on a vault-less dry-run — null or a string, never throws.
+  assert.ok(r.path === null || typeof r.path === 'string');
+});
+
+test('contractFingerprint is present, deterministic, and stable in shape', async () => {
+  assert.match(CONTRACT_FINGERPRINT, /^[0-9a-f]{12}$/);
+  const r = await run(['--title', 'Fingerprint Probe', '--dry-run', '--json'], { env: {}, isTTY: false });
+  assert.equal(r.contractFingerprint, CONTRACT_FINGERPRINT);
 });

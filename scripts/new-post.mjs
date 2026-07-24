@@ -32,11 +32,33 @@ import { stdin, stdout } from 'node:process';
 import { readFileSync, readdirSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 
 import { POST_FORMATS, FORMAT_FIELDS, SHARED_OPTIONAL_FIELDS } from '../src/lib/formats.ts';
 import { hugoSlug } from '../src/lib/slug.ts';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+/**
+ * A stable fingerprint of the *contract* the scaffolder emits against — the
+ * valid formats, their owned fields, the shared-optional set, and the slug
+ * behavior. It changes ONLY when the contract changes, not when this file is
+ * refactored or recommented — so a fetch-live consumer can assert it to catch a
+ * genuinely breaking upstream change while ignoring cosmetic edits. This is the
+ * "pin the contract, not the bytes" answer to drift detection. Surfaced in
+ * --json as `contractFingerprint`.
+ */
+export const CONTRACT_FINGERPRINT = createHash('sha256')
+  .update(
+    JSON.stringify({
+      postFormats: POST_FORMATS,
+      formatFields: FORMAT_FIELDS,
+      sharedOptionalFields: SHARED_OPTIONAL_FIELDS,
+      slugProbe: hugoSlug('Aä 1 & B/C — Déjà Vu'),
+    }),
+  )
+  .digest('hex')
+  .slice(0, 12);
 
 /** A thrown UserError is a clean, expected failure (bad input) — not a bug. */
 class UserError extends Error {}
@@ -220,7 +242,7 @@ Options:
   --tags <a,b,c>           Comma-separated tags
   --dir <path>             Output dir (default: $BLOG_SOURCE/posts)
   --force                  Overwrite an existing file / slug collision
-  --dry-run, --stdout      Print the file instead of writing it
+  --dry-run, --stdout      Print the file instead of writing it (no vault needed)
   --json                   Emit JSON (implies non-interactive); errors as JSON too
   --help, -h               This help
 
@@ -289,12 +311,39 @@ export async function run(argv, { env = process.env, isTTY = stdin.isTTY } = {})
   const slug = hugoSlug(title);
   if (!slug) throw new UserError(`Title \"${title}\" produces an empty URL slug — it needs letters or numbers.`);
   const filename = toFilename(title);
-  const outDir = v.dir ? resolve(v.dir) : join(resolveBlogSource({ env }), 'posts');
-  const path = join(outDir, filename);
   const url = `/posts/${slug}/`;
   const dryRun = v['dry-run'] || v.stdout;
 
-  const result = { path, filename, slug, url, format, draft: true, wrote: false, content };
+  // Resolve the output dir lazily. A real write REQUIRES the vault; a dry-run
+  // writes nothing, so a missing vault must never block it — that's the
+  // zero-config automation seam (--dry-run --json with no $BLOG_SOURCE and no
+  // --dir still returns canonical frontmatter). Prefer explicit --dir, then the
+  // vault; for a dry-run with neither, fall back to null (path is informational).
+  let outDir;
+  if (v.dir) {
+    outDir = resolve(v.dir);
+  } else if (dryRun) {
+    try {
+      outDir = join(resolveBlogSource({ env }), 'posts');
+    } catch {
+      outDir = null; // vault-less dry-run: nothing is written, so this is fine
+    }
+  } else {
+    outDir = join(resolveBlogSource({ env }), 'posts');
+  }
+  const path = outDir ? join(outDir, filename) : null;
+
+  const result = {
+    path,
+    filename,
+    slug,
+    url,
+    format,
+    draft: true,
+    wrote: false,
+    contractFingerprint: CONTRACT_FINGERPRINT,
+    content,
+  };
 
   if (dryRun) return result;
 
@@ -330,7 +379,8 @@ async function main() {
     }
     if (!r.wrote) {
       stdout.write(r.content);
-      stdout.write(`\n# (dry-run) would write → ${r.path}\n# URL → ${r.url}\n`);
+      const dest = r.path ?? `${r.filename}  (pass --dir or set BLOG_SOURCE to resolve the vault path)`;
+      stdout.write(`\n# (dry-run) would write → ${dest}\n# URL → ${r.url}\n`);
       return;
     }
     stdout.write(

@@ -67,6 +67,13 @@ npm run new-post -- --title "My Post" --format build --tags "audio,mcp" --json
   ```
 - Then edit the draft in Obsidian and run `./sync_obsidian-to-astro.sh` to publish
   (flip `draft: true` when it's ready).
+- **Automation seam:** `--dry-run --json` needs no vault (`$BLOG_SOURCE`/`--dir`
+  optional) — it returns the canonical frontmatter as a string and writes
+  nothing. JSON shape: `{ path, filename, slug, url, format, draft, wrote,
+  contractFingerprint, content }`. `contractFingerprint` is a short hash of the
+  *honored contract* (formats + owned/shared fields + slug rules); a fetch-live
+  consumer can assert it to catch a breaking upstream change while ignoring
+  cosmetic edits.
 
 Options: `--title/-t`, `--format/-f`, `--date`, `--description`, `--tags`, `--dir`,
 `--force`, `--dry-run`, `--json`, `--help`. Self-test: `npm run test:new-post`.
