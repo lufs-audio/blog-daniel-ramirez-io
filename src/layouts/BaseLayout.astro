@@ -21,6 +21,13 @@ const year = new Date().getFullYear();
 <html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
+    <script is:inline>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
@@ -38,6 +45,12 @@ const year = new Date().getFullYear();
     <div class="cur-dot" aria-hidden="true"></div>
     <div class="cur-ring" aria-hidden="true"></div>
     <div class="source-scrim" id="scrim" aria-hidden="true"></div>
+
+    <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) -->
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme">
+      <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"/><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"/></svg></span>
+      <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"/><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"/><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"/><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"/><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"/><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"/></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"/></svg></span>
+    </button>
 
     <div class="app">
       <aside class="site-sidebar" id="sidebar">
@@ -117,6 +130,13 @@ const year = new Date().getFullYear();
         }
         placeSocials();
         var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script>
+    <script is:inline>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
       })();
     </script>
   </body>
