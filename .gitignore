@@ -1,3 +1,18 @@
+# build output
+dist/
+release/
+
+# astro
+.astro/
+
+# deps
+node_modules/
+
+# os / editor
+.DS_Store
+*.log
+.env
+.env.*
 
 # local blog tooling config (copy blog.env.example -> blog.env)
 blog.env
