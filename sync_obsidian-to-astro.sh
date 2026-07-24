@@ -16,13 +16,24 @@
 #     stops at `git push origin main`. CI builds the verified artifact and publishes
 #     it to the agnostic `site` branch. (See scripts/build + the KB
 #     website-portability suite.)
+#   - The vault path now lives in blog.env (shared with scripts/new-post.mjs) so
+#     there's ONE config. A pre-set BLOG_SOURCE env var still overrides it.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# The Obsidian vault content folder (source of truth). Override with BLOG_SOURCE.
-sourcePath="${BLOG_SOURCE:-/Users/danielramirez/Nextcloud/ore/Notes/Project/hugo-content}"
+# The Obsidian vault content folder (source of truth). One config: blog.env.
+# Precedence: an already-exported BLOG_SOURCE wins; otherwise blog.env supplies it.
+_preset_blog_source="${BLOG_SOURCE:-}"
+if [ -f "$SCRIPT_DIR/blog.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  . "$SCRIPT_DIR/blog.env"
+  set +a
+fi
+[ -n "$_preset_blog_source" ] && BLOG_SOURCE="$_preset_blog_source"
+sourcePath="${BLOG_SOURCE:?BLOG_SOURCE is not set — add it to blog.env or export it}"
 # Astro content collection root (mirrors the vault tree: posts/, about/, resources/, ...).
 destinationPath="$SCRIPT_DIR/src/content"
 
