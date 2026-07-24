@@ -33,7 +33,7 @@ if [ -f "$SCRIPT_DIR/blog.env" ]; then
   set +a
 fi
 [ -n "$_preset_blog_source" ] && BLOG_SOURCE="$_preset_blog_source"
-sourcePath="${BLOG_SOURCE:?BLOG_SOURCE is not set — add it to blog.env or export it}"
+sourcePath="${BLOG_SOURCE:?BLOG_SOURCE is not set — cp blog.env.example blog.env and set it (or export BLOG_SOURCE)}"
 # Astro content collection root (mirrors the vault tree: posts/, about/, resources/, ...).
 destinationPath="$SCRIPT_DIR/src/content"
 

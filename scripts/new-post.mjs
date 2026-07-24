@@ -70,7 +70,7 @@ export function resolveBlogSource({ env = process.env, root = REPO_ROOT } = {}) 
     if (parsed.BLOG_SOURCE && parsed.BLOG_SOURCE.trim()) return parsed.BLOG_SOURCE.trim();
   }
   throw new UserError(
-    'BLOG_SOURCE is not set. Add it to blog.env or export BLOG_SOURCE=<vault path>.',
+    'BLOG_SOURCE is not set. Copy blog.env.example -> blog.env and set it, or export BLOG_SOURCE=<vault path>.',
   );
 }
 
