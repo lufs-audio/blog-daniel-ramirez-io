@@ -89,7 +89,7 @@ To me, this network clock is exactly the kind of invisible correctness I want my
 
 ---
 
-*The marching-band clips up there are the FAMU "Marching 100" — some of the best to ever do it — pulled from [HonestyB](https://giphy.com/h0nestyb) and [Respective](https://giphy.com/respectivecollective) on GIPHY. Go watch the full clips, they're worth it.*
+*The marching-band clips up there are the [FAMU "Marching 100" ](https://cssah.famu.edu/departments-and-centers/marching-100/index.php)— some of the best to ever do it — pulled from [HonestyB](https://giphy.com/h0nestyb) and [Respective](https://giphy.com/respectivecollective) on GIPHY. Go watch the full clips, [they're worth it](https://www.youtube.com/watch?v=_3RzRYMM0rE).*
 
 *Sources (verified 2026-07-17):*
 
