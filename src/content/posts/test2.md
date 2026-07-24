@@ -1,6 +1,7 @@
 ---
 title: "The Architecture of Musical Fragments"
 date: 2026-04-06
+draft: true
 ---
 
 ---
