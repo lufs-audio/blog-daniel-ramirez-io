@@ -8,7 +8,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "new-post": "node --experimental-strip-types --disable-warning=ExperimentalWarning scripts/new-post.mjs",
+    "test:new-post": "node --experimental-strip-types --disable-warning=ExperimentalWarning --test scripts/new-post.test.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.11",

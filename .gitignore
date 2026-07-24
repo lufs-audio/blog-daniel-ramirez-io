@@ -13,3 +13,6 @@ node_modules/
 *.log
 .env
 .env.*
+
+# local blog tooling config (copy blog.env.example -> blog.env)
+blog.env
