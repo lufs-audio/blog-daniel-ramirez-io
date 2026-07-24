@@ -189,3 +189,5 @@ This level of integration would influence how we approach sound design, bridging
 The marriage of specialized musical knowledge with the emerging capabilities of LLMs and Model Context Protocols could represent a new interface for audio folks. By building tools that encapsulate theoretical frameworks like Merlet's modal system, we can make complex musical concepts immediately applicable to our creative workflows.
 
 As we continue to develop these integrations, I hope that the boundary between conceptual thinking and implementation will become increasingly fluid. Sound designers should be able to move seamlessly between high-level musical ideas and their concrete realizations. I'll be diving into this more going forward 🫡
+
+[^1]: 
