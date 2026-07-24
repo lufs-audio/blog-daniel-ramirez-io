@@ -5,6 +5,7 @@
  * src/styles/tokens.css. Ciani wires the data; Amacher owns the presentation.
  */
 import { site } from '../config/site';
+import CloudMark from '../components/CloudMark.astro';
 import '../styles/tokens.css';
 
 interface Props {
@@ -77,7 +78,7 @@ const year = new Date().getFullYear();
       <main class="site-main">
         <slot />
         <footer class="site-footer">
-          <span class="squares" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <CloudMark />
           <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a>
           <small>© {year} LUFS Audio</small>
         </footer>

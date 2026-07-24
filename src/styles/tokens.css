@@ -154,8 +154,8 @@ a:hover{color:var(--accent)}
 .webring__mark i:nth-child(1){background:var(--accent)}.webring__mark i:nth-child(2){background:var(--blue)}
 .webring__mark i:nth-child(3){background:#2069af}.webring__mark i:nth-child(4){background:var(--terra);animation:mblink 2.6s steps(1) infinite}
 @keyframes mblink{0%,72%{opacity:1}73%,100%{opacity:.2}}
-.about-cloud{margin:3.4rem auto 1rem;text-align:center}
-.logo-cloud{width:150px;height:150px;animation:cloudFloat 6s ease-in-out infinite}
+.cloud-mark{display:inline-flex;align-items:center;line-height:0}
+.logo-cloud{width:42px;height:42px;animation:cloudFloat 6s ease-in-out infinite}
 .logo-cloud .eye{transform-box:fill-box;transform-origin:center;animation:cloudBlink 7s infinite}
 @keyframes cloudFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes cloudBlink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
@@ -168,10 +168,6 @@ a:hover{color:var(--accent)}
 
 /* ---- footer ---- */
 .site-footer{margin-top:3.5rem;padding:1.8rem clamp(1.3rem,4vw,3.4rem) 2.4rem;border-top:1px solid var(--hair);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.squares{display:grid;grid-template-columns:repeat(2,9px);gap:3px}
-.squares i{width:9px;height:9px;display:block}
-.squares i:nth-child(1){background:#d9a23d}.squares i:nth-child(2){background:#78beba}
-.squares i:nth-child(3){background:#2069af}.squares i:nth-child(4){background:#c8654a}
 .site-footer a{font-family:var(--display);font-weight:600;color:var(--text)}
 .site-footer a:hover{color:var(--accent-txt)}
 .site-footer small{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--dim);margin-left:auto}
