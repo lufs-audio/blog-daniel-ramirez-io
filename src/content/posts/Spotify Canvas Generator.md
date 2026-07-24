@@ -25,7 +25,7 @@ Here's an example with the album artwork:
 
 ### Spotify Canvas
 
-![Image Description](/images/my-mind_canvas1.gif)
+<video controls controlsList="nodownload" oncontextmenu="return false;"><source src="/videos/my-mind_canvas1.mp4" type="video/mp4"></video>
 
 Boom.
 
