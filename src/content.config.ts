@@ -1,6 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
-import { POST_FORMATS } from './lib/formats';
+import { POST_FORMATS, FORMAT_FIELDS } from './lib/formats';
 
 /**
  * The content collections ARE the registry (filesystem-as-registry): the tree
@@ -62,11 +62,14 @@ const posts = defineCollection({
     })
     // Fail closed on cross-format field misuse: a `standard` post that sets
     // `score` (or any other format-owned field) is almost certainly a mistake —
-    // catch it at build time rather than ship it silently. (Ciani's note.)
+    // catch it at build time rather than ship it silently. The per-format
+    // ownership map lives once in src/lib/formats.ts (FORMAT_FIELDS) and now
+    // DRIVES both this guard and the new-post scaffolder, so the two can never
+    // drift. (Guard staged by Ciani; map-wired here by Amacher, ratifying the seam.)
     .superRefine((d, ctx) => {
       const rec = d as Record<string, unknown>;
-      const guard = (wrongFormat: boolean, fields: string[], owner: string) => {
-        if (!wrongFormat) return;
+      for (const [owner, fields] of Object.entries(FORMAT_FIELDS)) {
+        if (d.format === owner) continue; // this format legitimately owns these
         for (const f of fields) {
           const v = rec[f];
           const isSet = Array.isArray(v) ? v.length > 0 : v !== undefined && v !== false;
@@ -77,10 +80,7 @@ const posts = defineCollection({
               message: `\`${f}\` is only valid on format: ${owner} (this post is format: ${d.format})`,
             });
         }
-      };
-      guard(d.format !== 'build', ['repo', 'stack', 'tldr'], 'build');
-      guard(d.format !== 'dispatch', ['sources'], 'dispatch');
-      guard(d.format !== 'review', ['score', 'verdict', 'pros', 'cons', 'specs', 'illustrative'], 'review');
+      }
     }),
 });
 

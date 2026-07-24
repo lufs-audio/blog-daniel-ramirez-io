@@ -16,19 +16,18 @@ export type Format = (typeof POST_FORMATS)[number];
 
 /**
  * Per-format frontmatter fields that ONLY that format may set — the
- * machine-readable companion to POST_FORMATS. This mirrors, field-for-field,
- * the ownership encoded by the `superRefine` cross-format guard in
- * src/content.config.ts, surfaced as data so one source can drive both
- * (a) that guard and (b) the new-post scaffolder (scripts/new-post.mjs), which
- * emits exactly these as commented stubs. If a field isn't format-owned it is a
- * SHARED_OPTIONAL_FIELD (valid on any format) — not listed here.
+ * machine-readable companion to POST_FORMATS. If a field isn't format-owned it
+ * is a SHARED_OPTIONAL_FIELD (valid on any format) — not listed here.
  *
  * ── Amacher's lane (the frontmatter contract) ──────────────────────────────
- * Ciani added this export additively to unblock + verify the scaffolder against
- * a concrete interface (Daniel's "move ahead"). It is faithful to the current
- * superRefine — no policy invented. Please ratify the shape/naming, and ideally
- * refactor content.config.ts's guard to READ from this map so the guard and the
- * scaffolder can never drift. Until then, keep the two in lockstep by hand.
+ * Ciani staged this export to unblock + verify the scaffolder against a concrete
+ * interface (Daniel's "move ahead"). Amacher has RATIFIED it and wired
+ * src/content.config.ts's superRefine cross-format guard to READ from this map.
+ * FORMAT_FIELDS is now the ONE source of per-format field ownership, driving
+ * BOTH that build-time guard and the new-post scaffolder (scripts/new-post.mjs,
+ * which emits exactly these as commented stubs) — so the two can never drift.
+ * To add/rename a format-owned field: add the Zod field in content.config.ts
+ * and its name here; the guard and the scaffolder both follow automatically.
  */
 export const FORMAT_FIELDS = {
   standard: [],
