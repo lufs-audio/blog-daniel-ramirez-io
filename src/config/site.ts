@@ -22,6 +22,12 @@ export interface SiteConfig {
   brandImage: string;
   favicon: string;
   canonicalUrl: string;
+  /** Byline for meta[name=author], article:author, and JSON-LD attribution. */
+  author: string;
+  /** The canonical identity hub the byline points at (not this blog). */
+  authorUrl: string;
+  /** 1200x630 social card for og:image / twitter:image; served from /public. */
+  ogImage: string;
   menu: MenuItem[];
   socials: SocialLink[];
   /** RSS feed lives at /posts/index.xml to preserve the old Hugo feed URL. */
@@ -41,6 +47,10 @@ export const site: SiteConfig = {
   brandImage: '/images/fbf9e2_cloud-profile.png',
   favicon: CLOUD_FAVICON,
   canonicalUrl: 'https://blog.daniel-ramirez.io',
+  author: 'Daniel Ramirez',
+  // The identity hub, not the blog — so attribution consolidates on one entity.
+  authorUrl: 'https://daniel-ramirez.io',
+  ogImage: '/images/og-card.png',
   menu: [
     { name: 'About', url: '/about/' },
     { name: 'Posts', url: '/posts/' },

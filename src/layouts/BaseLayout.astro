@@ -11,10 +11,61 @@ import '../styles/tokens.css';
 interface Props {
   title: string;
   description?: string;
+  /** OG/schema type: 'article' for posts, 'website' for everything else. */
+  type?: 'website' | 'article';
+  /** Article publication date — drives article:published_time + JSON-LD datePublished. */
+  publishedDate?: Date;
+  /** Topical tags — become article:tag + JSON-LD keywords. */
+  tags?: string[];
 }
-const { title, description = site.description } = Astro.props;
+const {
+  title,
+  description = site.description,
+  type = 'website',
+  publishedDate,
+  tags = [],
+} = Astro.props;
 const pageTitle = title === site.brand ? site.brand : `${title} · ${site.brand}`;
 const year = new Date().getFullYear();
+
+// Absolute URLs for the social/structured layer — crawlers and unfurlers require them.
+const pageUrl = new URL(Astro.url.pathname, site.canonicalUrl).href;
+const ogImage = new URL(site.ogImage, site.canonicalUrl).href;
+const publishedISO = publishedDate ? publishedDate.toISOString() : undefined;
+
+/**
+ * JSON-LD. This is the machine-readable attribution layer: it's what lets search
+ * engines and answer engines (Perplexity, ChatGPT search, Exa) state WHO wrote a
+ * piece and WHEN with confidence — the single biggest GEO lever after having
+ * clean, crawlable prose. BlogPosting on articles, Person on everything else.
+ */
+const author = { '@type': 'Person', name: site.author, url: site.authorUrl };
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        ...(publishedISO ? { datePublished: publishedISO, dateModified: publishedISO } : {}),
+        author,
+        publisher: author,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+        url: pageUrl,
+        image: ogImage,
+        inLanguage: 'en-US',
+        ...(tags.length ? { keywords: tags.join(', ') } : {}),
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: site.brand,
+        description,
+        url: new URL('/', site.canonicalUrl).href,
+        inLanguage: 'en-US',
+        author,
+        publisher: author,
+      };
 ---
 
 <!doctype html>
@@ -33,7 +84,50 @@ const year = new Date().getFullYear();
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={site.favicon} />
     <link rel="alternate" type="application/rss+xml" title={site.brand} href={site.feedUrl} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, site.canonicalUrl)} />
+    <link rel="canonical" href={pageUrl} />
+
+    <!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. -->
+    <meta name="author" content={site.author} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. -->
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:site_name" content={site.brand} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.brand} — ${site.description}`} />
+    {type === 'article' && publishedISO && (
+      <meta property="article:published_time" content={publishedISO} />
+    )}
+    {type === 'article' && <meta property="article:author" content={site.authorUrl} />}
+    {type === 'article' && tags.map((t) => <meta property="article:tag" content={t} />)}
+
+    <!-- Twitter/X card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={`${site.brand} — ${site.description}`} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. -->
+    <script
+      is:inline
+      defer
+      src="https://umami.lufshq.com/script.js"
+      data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456"
+      data-do-not-track="true"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

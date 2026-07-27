@@ -25,6 +25,8 @@ interface Props {
   title: string;
   date?: Date;
   description?: string;
+  /** Topical tags — forwarded to BaseLayout for article:tag + JSON-LD keywords. */
+  tags?: string[];
   source?: string;
   showSource?: boolean;
   /** Content wrapper class: 'prose' for articles, 'about-lead' for the About blurb. */
@@ -48,7 +50,7 @@ interface Props {
   illustrative?: boolean;
 }
 const {
-  title, date, description, source, showSource = !!source, contentClass = 'prose',
+  title, date, description, tags = [], source, showSource = !!source, contentClass = 'prose',
   format = 'standard', dek, kicker,
   repo, stack = [], tldr,
   sources = [],
@@ -63,7 +65,13 @@ const sourceName = `${hugoSlug(title)}.md`;
 const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout
+  title={title}
+  description={description}
+  type={date ? 'article' : 'website'}
+  publishedDate={date}
+  tags={tags}
+>
   <div class="view-pad">
     {showSource && (
       <div class="post__bar reveal">
