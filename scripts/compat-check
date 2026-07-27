@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+"""
+Portability gate for the repo's Python build scripts.
+
+Run by scripts/build BEFORE anything else, so a construct that only works on a
+newer interpreter than the CI runner fails immediately and legibly instead of
+crashing mid-build after a successful astro build.
+
+WHY THIS EXISTS: I previously "checked 3.9 compatibility" with ast.parse(), which
+only validates SYNTAX. `def f() -> tuple[str, int]:` parses on every version but
+is EVALUATED at def-time, so it raises TypeError on <3.9. That shipped a broken
+build. This test catches that class of bug two ways:
+
+  1. ast.parse(feature_version=(3, 6)) — rejects newer *syntax* (walrus, match).
+  2. exec() in a namespace where the builtin generics raise on subscript, exactly
+     as they do before PEP 585 landed in 3.9. This evaluates annotations for real.
+"""
+import ast
+import pathlib
+import sys
+
+TARGET = (3, 6)
+REPO = pathlib.Path(__file__).resolve().parent.parent
+FILES = tuple(str(REPO / "scripts" / n) for n in ("stamp-provenance", "verify"))
+
+
+class PreP585:
+    """Stands in for a builtin type that cannot be subscripted (Python < 3.9)."""
+
+    def __init__(self, real):
+        self._real = real
+
+    def __getitem__(self, _item):
+        raise TypeError("'type' object is not subscriptable")
+
+    def __call__(self, *a, **kw):
+        return self._real(*a, **kw)
+
+    def __getattr__(self, name):
+        return getattr(self._real, name)
+
+
+def check_syntax(path):
+    src = open(path).read()
+    try:
+        ast.parse(src, feature_version=TARGET)
+        return None
+    except SyntaxError as exc:
+        return f"syntax not valid on {TARGET[0]}.{TARGET[1]}: {exc.msg} (line {exc.lineno})"
+
+
+def check_annotation_evaluation(path):
+    """Evaluate the module's definitions with builtins that refuse subscripting.
+
+    Only imports, assignments, and def/class statements are kept — the scripts'
+    module-level work (verify runs its checks at import time) is filtered out, so
+    this evaluates annotations without producing side effects.
+    """
+    src = open(path).read()
+    # Keep only the import block and the def/class bodies — we want annotations
+    # evaluated, not the scripts' side effects.
+    tree = ast.parse(src)
+    keep = [n for n in tree.body if isinstance(
+        n, (ast.Import, ast.ImportFrom, ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Assign)
+    )]
+    module = ast.Module(body=keep, type_ignores=[])
+    ast.fix_missing_locations(module)
+    code = compile(module, path, "exec")
+
+    ns = {"__name__": "compat_probe", "__file__": path}
+    for name in ("tuple", "list", "dict", "set", "frozenset", "type"):
+        ns[name] = PreP585(getattr(__builtins__, name) if hasattr(__builtins__, name)
+                           else __builtins__[name])
+    try:
+        exec(code, ns)
+        return None
+    except TypeError as exc:
+        if "not subscriptable" in str(exc):
+            return f"evaluates a PEP 585 builtin generic (needs 3.9+): {exc}"
+        return f"TypeError while evaluating definitions: {exc}"
+
+
+def main():
+    failures = []
+    for f in FILES:
+        for label, fn in (("syntax", check_syntax), ("annotations", check_annotation_evaluation)):
+            err = fn(f)
+            status = "ok" if err is None else "FAIL"
+            print(f"{status:4s} {pathlib.Path(f).name:18s} {label:12s} {err or ''}")
+            if err:
+                failures.append((f, label, err))
+    print()
+    if failures:
+        print(f"{len(failures)} portability failure(s) — target is Python {TARGET[0]}.{TARGET[1]}+")
+        return 1
+    print(f"both scripts are safe on Python {TARGET[0]}.{TARGET[1]}+")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

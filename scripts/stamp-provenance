@@ -78,8 +78,14 @@ def source_ref() -> str:
     return git("rev-parse", "--abbrev-ref", "HEAD") or "unknown"
 
 
-def artifact_digest(root: pathlib.Path, exclude: pathlib.Path) -> tuple[str, int]:
-    """Order-independent content digest over every file under root except `exclude`."""
+def artifact_digest(root, exclude):
+    """Order-independent content digest over every file under root except `exclude`.
+
+    Returns (hex_digest, file_count). Annotations are deliberately omitted here:
+    `-> tuple[str, int]` is evaluated at def-time and raises TypeError before
+    Python 3.9 (PEP 585), and CI runners are not guaranteed to be newer.
+    scripts/compat-check enforces this.
+    """
     lines = []
     for p in sorted(root.rglob("*")):
         if not p.is_file() or p == exclude:

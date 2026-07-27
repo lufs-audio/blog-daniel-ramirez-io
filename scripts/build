@@ -7,6 +7,11 @@ set -euo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
+# Fail FAST on interpreter-portability bugs. These scripts run on whatever python3
+# the runner ships, which is not guaranteed to be new. Checking here means a bad
+# annotation costs 200ms instead of surfacing after a full npm ci + astro build.
+python3 scripts/compat-check
+
 if [ -f package-lock.json ]; then
   npm ci
 else
