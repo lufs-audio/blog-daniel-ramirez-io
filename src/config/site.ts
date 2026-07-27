@@ -22,6 +22,19 @@ export interface SiteConfig {
   brandImage: string;
   favicon: string;
   canonicalUrl: string;
+  /** Byline for meta[name=author], article:author, and JSON-LD attribution. */
+  author: string;
+  /** The canonical identity hub the byline points at (not this blog). */
+  authorUrl: string;
+  /**
+   * Social card for og:image / twitter:image; served from /public.
+   * Currently the square profile mark. A proper 1200x630 landscape card is built
+   * (scripts/og-card.html) but must be committed as real binary — see README.
+   */
+  ogImage: string;
+  /** og:image intrinsic size, declared so unfurlers don't have to fetch to find out. */
+  ogImageWidth: number;
+  ogImageHeight: number;
   menu: MenuItem[];
   socials: SocialLink[];
   /** RSS feed lives at /posts/index.xml to preserve the old Hugo feed URL. */
@@ -41,6 +54,14 @@ export const site: SiteConfig = {
   brandImage: '/images/fbf9e2_cloud-profile.png',
   favicon: CLOUD_FAVICON,
   canonicalUrl: 'https://blog.daniel-ramirez.io',
+  author: 'Daniel Ramirez',
+  // The identity hub, not the blog — so attribution consolidates on one entity.
+  authorUrl: 'https://daniel-ramirez.io',
+  // Square 2250x2250 profile mark. Renders as a large square card rather than a
+  // 1.91:1 banner; swap to '/images/og-card.png' (1200x630) once that binary lands.
+  ogImage: '/images/fbf9e2_cloud-profile.png',
+  ogImageWidth: 2250,
+  ogImageHeight: 2250,
   menu: [
     { name: 'About', url: '/about/' },
     { name: 'Posts', url: '/posts/' },

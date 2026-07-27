@@ -1,0 +1,168 @@
+<!--
+  og-card.html — source for public/images/og-card.png (1200x630 social card).
+
+  Rendered to PNG at exact size, e.g.:
+    npx playwright screenshot --viewport-size=1200,630 \
+      scripts/og-card.html public/images/og-card.png
+
+  Kept as HTML (not a hand-exported image) so the card is reproducible from the
+  real brand tokens: palette is lifted verbatim from src/styles/tokens.css
+  [data-theme="dark"], the mark is the resume-site cloud, type is Host Grotesk /
+  Public Sans / Space Mono. If the wordmark or palette changes, re-render.
+
+  NOTE: og:image in src/config/site.ts currently points at the square profile PNG,
+  because the GitHub MCP file APIs double-encode binary and could not commit this
+  card as a valid PNG. Commit og-card.png via git (or the web UI) and switch
+  site.ogImage to '/images/og-card.png' + 1200x630 to activate it.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* Daniel Ramirez. personal register — muted palette, warm near-black ground.
+     Tokens lifted verbatim from src/styles/tokens.css [data-theme=dark]. */
+  :root{
+    --bg:#201e1b; --bg-alt:#262420;
+    --text:#efece0; --read:rgba(239,236,224,.9); --muted:rgba(239,236,224,.72);
+    --dim:rgba(239,236,224,.5);
+    --hair:rgba(239,236,224,.15); --hair-2:rgba(239,236,224,.30);
+    --gold:#d9a23d; --gold-txt:#e3b661;
+    --sage:#a9a77f; --blue:#9fc1d0; --terra:#e0836a;
+    --display:'Host Grotesk','Public Sans',sans-serif;
+    --sans:'Public Sans',system-ui,sans-serif;
+    --mono:'Space Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1200px;height:630px}
+  body{
+    background:var(--bg);
+    font-family:var(--sans);
+    color:var(--text);
+    position:relative;
+    overflow:hidden;
+  }
+  /* faint hairline grid — the Swiss substrate, barely there */
+  .grid{
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(to right, rgba(239,236,224,.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(239,236,224,.045) 1px, transparent 1px);
+    background-size:60px 60px;
+  }
+  /* single restrained gold wash, upper-left, no glow clichés */
+  .wash{
+    position:absolute;left:-180px;top:-220px;width:760px;height:760px;
+    background:radial-gradient(circle at center, rgba(217,162,61,.13), transparent 68%);
+  }
+  .frame{
+    position:relative;
+    height:100%;
+    padding:52px 72px 46px;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  /* ── top row: cloud mark + wordmark ── */
+  .top{display:flex;align-items:center;gap:22px}
+  .mark{
+    width:78px;height:78px;border-radius:50%;
+    background:#fbf9e2;
+    border:1px solid var(--hair-2);
+    display:grid;place-items:center;
+    flex:none;
+  }
+  .mark svg{width:55px;height:55px;display:block}
+  .wordmark{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:40px;
+    letter-spacing:-.025em;
+    line-height:1;
+  }
+  .wordmark .dot{color:var(--gold)}
+
+  /* ── middle: the line that does the work ── */
+  .mid{flex:1;display:flex;flex-direction:column;justify-content:center;padding:18px 0}
+  .kicker{
+    font-family:var(--mono);
+    font-size:14px;
+    text-transform:uppercase;
+    letter-spacing:.26em;
+    color:var(--gold-txt);
+    margin-bottom:20px;
+  }
+  h1{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:88px;
+    line-height:.98;
+    letter-spacing:-.032em;
+    color:var(--text);
+  }
+  h1 .soft{color:var(--muted)}
+  .rule{
+    width:88px;height:3px;background:var(--gold);
+    margin:24px 0 20px;
+  }
+  .lede{
+    font-size:23px;
+    line-height:1.4;
+    color:var(--read);
+    max-width:34ch;
+    font-weight:300;
+  }
+
+  /* ── bottom row: domain + the four-square spectrum ── */
+  .bot{display:flex;align-items:flex-end;justify-content:space-between}
+  .domain{
+    font-family:var(--mono);
+    font-size:18px;
+    letter-spacing:.12em;
+    color:var(--muted);
+    text-transform:lowercase;
+  }
+  .squares{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:38px;height:38px}
+  .squares i{display:block;border-radius:1px}
+  .squares i:nth-child(1){background:var(--gold)}
+  .squares i:nth-child(2){background:var(--blue)}
+  .squares i:nth-child(3){background:var(--sage)}
+  .squares i:nth-child(4){background:var(--terra)}
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="wash"></div>
+  <div class="frame">
+
+    <div class="top">
+      <span class="mark">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z"
+            fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3" />
+          <circle cx="70" cy="100" r="15" fill="#201e1b" />
+          <circle cx="130" cy="100" r="15" fill="#201e1b" />
+        </svg>
+      </span>
+      <span class="wordmark">Daniel Ramirez<span class="dot">.</span></span>
+    </div>
+
+    <div class="mid">
+      <p class="kicker">blog · essays &amp; build logs</p>
+      <h1>Sound<span class="soft">&nbsp;&amp;</span><br />Systems</h1>
+      <div class="rule"></div>
+      <p class="lede">Sound design, audio tooling, and the systems built around them.</p>
+    </div>
+
+    <div class="bot">
+      <span class="domain">blog.daniel-ramirez.io</span>
+      <span class="squares"><i></i><i></i><i></i><i></i></span>
+    </div>
+
+  </div>
+</body>
+</html>
