@@ -82,8 +82,12 @@ def sha256_file(p: pathlib.Path) -> str:
     return h.hexdigest()
 
 
-def artifact_digest(root: pathlib.Path, exclude: pathlib.Path) -> tuple:
-    """Must stay byte-for-byte identical in logic to scripts/stamp-provenance."""
+def artifact_digest(root, exclude):
+    """Must stay byte-for-byte identical in logic to scripts/stamp-provenance.
+
+    Returns (hex_digest, file_count). Unannotated on purpose — see the note in
+    scripts/stamp-provenance about PEP 585 and pre-3.9 runners.
+    """
     lines = []
     for p in sorted(root.rglob("*")):
         if not p.is_file() or p == exclude:
