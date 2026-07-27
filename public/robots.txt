@@ -1,34 +1,132 @@
+# robots.txt — blog.daniel-ramirez.io
+#
+# POLICY: cite us, don't train on us.
+#
+# Rationale (full reasoning: agent-knowledge docs/strategy/web-visibility/02-crawler-policy):
+# "AI: yes or no" is the wrong question. Retrieval and training are DIFFERENT crawlers
+# with different user-agents, and for every vendor except Google they are separately
+# controllable. So:
+#
+#   * RETRIEVAL / CITATION bots are ALLOWED. This blog exists to be read and cited.
+#     A zero-click citation is a WIN here, not a loss — this site carries no ads, so
+#     its value is credibility established, not impressions served. Blocking these
+#     would remove the entire upside; eligibility is binary.
+#
+#   * BULK TRAINING crawlers are DISALLOWED. Measured cost of doing so is ~1% of search
+#     traffic (Raptive, first-party data across 6,000+ sites), i.e. approximately nothing.
+#     In exchange we keep a shred of leverage if content-licensing markets ever mature,
+#     and the posture matches the own-the-stack ethic. Attribution flows back from
+#     retrieval; it never flows back from a training corpus.
+#
+# Note this file is a PREFERENCE, not a control. Reputable crawlers honor it; some
+# demonstrably do not (Cloudflare documented undeclared crawling against domains that
+# disallowed all bots in both robots.txt and WAF rules, 2025-08). Treat it as a signed
+# statement of our terms, and don't mistake it for enforcement.
+
+# ---------------------------------------------------------------------------
+# Default: open. Humans, feed readers, and conventional search are all welcome.
+# ---------------------------------------------------------------------------
 User-agent: *
 Allow: /
 
-# Answer/AI engines are welcomed EXPLICITLY rather than by omission: this blog exists
-# to be read and cited, and being retrievable is the point. Listed by name so the
-# intent is legible in the repo instead of being an accident of the default.
-User-agent: GPTBot
-Allow: /
+# ---------------------------------------------------------------------------
+# ALLOWED — retrieval / citation crawlers.
+# These index pages so an answer engine can surface and attribute them.
+# ---------------------------------------------------------------------------
 
+# OpenAI — powers ChatGPT Search citations.
 User-agent: OAI-SearchBot
 Allow: /
 
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
+# Anthropic — powers Claude's web-search citations.
 User-agent: Claude-SearchBot
 Allow: /
 
+# Perplexity — indexes for citation; densest citer of the major engines
+# (~16-21 sources per answer), so the best odds for a narrow, deep site like this one.
 User-agent: PerplexityBot
 Allow: /
 
+# Google. NOTE THE COUPLING: Googlebot serves BOTH conventional Search indexing AND
+# AI Overviews / AI Mode grounding. There is no directive that keeps one and drops the
+# other — Google-Extended governs only Gemini Apps and Vertex AI training, NOT AI
+# Overviews (confirmed under oath, Google antitrust remedies trial, 2025-05). Allowing
+# Googlebot is therefore a DELIBERATE decision to accept AI Overview grounding as the
+# price of organic discovery, not an oversight. Watch the UK CMA remedy (2026-06-03),
+# which forces a real opt-out; if it globalizes, revisit this block.
+User-agent: Googlebot
+Allow: /
+
+# Apple's search/Siri crawler (its training half is Applebot-Extended, disallowed below).
+User-agent: Applebot
+Allow: /
+
+# ---------------------------------------------------------------------------
+# ALLOWED — user-initiated fetches.
+# These fire when a HUMAN pastes a URL or asks about this page specifically.
+# That's a person reading the site; there is no reason to refuse it.
+# ---------------------------------------------------------------------------
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# ---------------------------------------------------------------------------
+# DISALLOWED — bulk training corpora. Nothing is attributed back from these.
+# ---------------------------------------------------------------------------
+
+# OpenAI model training (distinct from OAI-SearchBot above, which is allowed).
+User-agent: GPTBot
+Disallow: /
+
+# Anthropic model training (distinct from Claude-SearchBot above, which is allowed).
+User-agent: ClaudeBot
+Disallow: /
+
+# Google: Gemini Apps + Vertex AI training. Disallowing this does NOT affect Google
+# Search ranking or AI Overviews — it is precisely the training-only opt-out, which is
+# why it costs us nothing.
 User-agent: Google-Extended
-Allow: /
+Disallow: /
 
+# Apple Intelligence / Apple foundation-model training.
 User-agent: Applebot-Extended
-Allow: /
+Disallow: /
 
+# Common Crawl — an open dataset that feeds many downstream trainers indiscriminately.
 User-agent: CCBot
-Allow: /
+Disallow: /
+
+# ByteDance. Documented history of aggressive crawling.
+User-agent: Bytespider
+Disallow: /
+
+# Meta model training.
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+# Amazon.
+User-agent: Amazonbot
+Disallow: /
+
+# Others that crawl primarily to build training corpora.
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: Timpibot
+Disallow: /
+
+User-agent: AI2Bot
+Disallow: /
 
 Sitemap: https://blog.daniel-ramirez.io/sitemap-index.xml
