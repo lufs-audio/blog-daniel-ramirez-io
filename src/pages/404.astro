@@ -1,0 +1,52 @@
+---
+/**
+ * 404 — the not-found page.
+ *
+ * This file is load-bearing for correctness, not just polish. Static hosts
+ * (Cloudflare Pages included) fall back to index.html with HTTP **200** when
+ * dist/404.html is absent, which turns every typo, dead link, and probe into an
+ * indexable duplicate of the homepage. `scripts/verify`'s `not_found_page` check
+ * fails closed if this page goes missing or starts imitating the homepage.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="404 — Not Found" description="That page isn't here.">
+  <section class="notfound">
+    <p class="notfound__code">404</p>
+    <h1 class="notfound__title">Not found</h1>
+    <p class="notfound__body">
+      That page isn't here. It may have moved, or the link may be wrong.
+    </p>
+    <p class="notfound__links">
+      <a href="/" data-hover>Home</a><span aria-hidden="true"> · </span><a href="/posts/" data-hover>All posts</a>
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .notfound {
+    padding: clamp(3rem, 12vh, 8rem) 0;
+    max-width: 42rem;
+  }
+  .notfound__code {
+    font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace);
+    font-size: 0.875rem;
+    letter-spacing: 0.14em;
+    opacity: 0.6;
+    margin: 0 0 0.75rem;
+  }
+  .notfound__title {
+    margin: 0 0 1rem;
+    line-height: 1.1;
+  }
+  .notfound__body {
+    margin: 0 0 1.75rem;
+    opacity: 0.85;
+  }
+  .notfound__links {
+    font-family: var(--font-mono, 'Space Mono', ui-monospace, monospace);
+    font-size: 0.9375rem;
+    margin: 0;
+  }
+</style>

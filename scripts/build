@@ -16,4 +16,12 @@ fi
 npm run build
 
 test -s dist/index.html || { echo "build: dist/index.html missing or empty"; exit 1; }
+
+# Stamp build provenance INTO the artifact, so the bytes we serve can be traced
+# back to the commit they came from with a single request (GET /build.json).
+# This lives here rather than in the workflow so every build path — CI, local,
+# or a future host — produces a self-describing artifact. scripts/verify then
+# recomputes the digest and fails closed if the stamp doesn't match.
+python3 scripts/stamp-provenance
+
 echo "build: ok"
