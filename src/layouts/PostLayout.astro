@@ -62,6 +62,10 @@ const dateLabel = date
   ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   : undefined;
 const sourceName = `${hugoSlug(title)}.md`;
+// The raw markdown is served as a standalone file (src/pages/posts/[...slug].md.ts)
+// and fetched on demand, instead of being inlined in a hidden <pre> on every page —
+// that duplicated the entire body text into the HTML for every visitor.
+const sourceUrl = `/posts/${hugoSlug(title)}.md`;
 const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
 ---
 
@@ -143,13 +147,18 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
       </article>
 
       {showSource && (
-        <aside class="reader__source" id="sourcePane" aria-hidden="true">
+        <aside
+          class="reader__source"
+          id="sourcePane"
+          aria-hidden="true"
+          data-src-url={sourceUrl}
+        >
           <div class="src-inner">
             <div class="reader__source-head">
               <span><b>source</b> · {sourceName}</span>
               <button class="source-x" id="srcClose" data-hover>esc ✕</button>
             </div>
-            <pre id="srcPre">{source}</pre>
+            <pre id="srcPre" data-state="idle">Loading source…</pre>
           </div>
         </aside>
       )}
@@ -162,6 +171,39 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
         var btn = document.getElementById('viewSource'); if (!btn) return;
         var scrim = document.getElementById('scrim');
         function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
         var syncH = null;
         function setupSync() {
           teardownSync();
@@ -188,17 +230,18 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
           var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
           btn.setAttribute('aria-pressed', String(on));
           btn.textContent = on ? '✕ Close source' : '{ } View source';
-          if (on) setupSync(); else teardownSync();
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
         }
         function openSlide() {
           var p = document.getElementById('slidePanel');
           if (!p) {
             p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
-            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre></pre>';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
             document.body.appendChild(p);
-            var src = document.getElementById('srcPre'); p.querySelector('pre').textContent = src ? src.textContent : '';
             p.querySelector('#slideX').addEventListener('click', closeSlide);
           }
+          fillSource(p.querySelector('pre'));
           requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
         }
         function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
