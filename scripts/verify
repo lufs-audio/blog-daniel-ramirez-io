@@ -9,12 +9,21 @@ Checks:
   - index_exists         : dist/index.html present and non-empty
   - required_routes      : every route in site/routes.txt resolves in dist/
   - url_parity           : every published post's Hugo-slug URL exists in dist/
+  - not_found_page       : dist/404.html exists, is a real 404 page, and is NOT
+                           a copy of the homepage (static hosts fall back to
+                           index.html with a 200 when it is missing, which turns
+                           every typo URL into an indexable homepage duplicate)
+  - build_provenance     : dist/build.json exists, is well-formed, names a real
+                           source commit, and its artifact_digest matches a
+                           recomputation over the artifact it ships inside
   - asset_size_budget    : no file exceeds runtime.max_asset_bytes in site.yaml
   - secret_scan          : no obvious private-key material in the artifact
 """
+import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 import pathlib
 
@@ -23,6 +32,7 @@ DIST = REPO / "dist"
 CONTENT_POSTS = REPO / "src" / "content" / "posts"
 ROUTES_FILE = REPO / "site" / "routes.txt"
 MAX_ASSET_BYTES = 26214400  # mirror site.yaml runtime.max_asset_bytes
+PROVENANCE_SCHEMA_VERSION = 1
 
 checks = []
 
@@ -34,7 +44,7 @@ def add(cid, ok, **extra):
 
 def hugo_slug(title: str) -> str:
     s = title.lower()
-    s = re.sub(r"[^0-9a-zÀ-￿]+", "-", s)  # non-alphanumeric -> hyphen
+    s = re.sub(r"[^0-9a-zÀ-ÿ]+", "-", s)  # non-alphanumeric -> hyphen
     return s.strip("-")
 
 
@@ -43,6 +53,45 @@ def route_to_file(route: str) -> pathlib.Path:
     if route.endswith("/"):
         return DIST / route.strip("/") / "index.html"
     return DIST / route.lstrip("/")
+
+
+def expected_source_sha() -> str:
+    """The commit we believe is being built, or "" when it genuinely cannot be known.
+
+    Mirrors scripts/stamp-provenance's resolution order so the two agree.
+    """
+    for env in ("GIT_SHA", "GITHUB_SHA", "CF_PAGES_COMMIT_SHA"):
+        v = os.environ.get(env, "").strip()
+        if re.fullmatch(r"[0-9a-f]{40}", v):
+            return v
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, timeout=10
+        )
+        head = out.stdout.strip() if out.returncode == 0 else ""
+    except Exception:
+        head = ""
+    return head if re.fullmatch(r"[0-9a-f]{40}", head) else ""
+
+
+def sha256_file(p: pathlib.Path) -> str:
+    h = hashlib.sha256()
+    with p.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def artifact_digest(root: pathlib.Path, exclude: pathlib.Path) -> tuple:
+    """Must stay byte-for-byte identical in logic to scripts/stamp-provenance."""
+    lines = []
+    for p in sorted(root.rglob("*")):
+        if not p.is_file() or p == exclude:
+            continue
+        rel = p.relative_to(root).as_posix()
+        lines.append(f"{rel}\0{sha256_file(p)}\n")
+    lines.sort()
+    return hashlib.sha256("".join(lines).encode()).hexdigest(), len(lines)
 
 
 ok_all = True
@@ -79,6 +128,69 @@ if CONTENT_POSTS.is_dir():
         if not (DIST / "posts" / slug / "index.html").is_file():
             missing_posts.append(slug)
 ok_all &= add("url_parity", not missing_posts, missing=missing_posts)
+
+# not_found_page: a real 404 must exist, and must not merely duplicate the homepage.
+nf = DIST / "404.html"
+nf_detail = {}
+nf_ok = nf.is_file() and nf.stat().st_size > 0
+if not nf_ok:
+    nf_detail["reason"] = "dist/404.html missing or empty; static hosts will serve index.html with HTTP 200 for unknown paths"
+else:
+    body = nf.read_text(encoding="utf-8", errors="ignore")
+    # Report the MOST SPECIFIC diagnosis; never let a later check clobber an earlier one.
+    canonical = re.search(r'<link[^>]+rel=["\']canonical["\'][^>]*>', body, re.I)
+    root_canonical = bool(
+        canonical and re.search(r'href=["\'][^"\']*?//[^/"\']+/?["\']', canonical.group(0))
+    )
+    if idx.is_file() and sha256_file(nf) == sha256_file(idx):
+        nf_ok = False
+        nf_detail["reason"] = "dist/404.html is byte-identical to index.html"
+    elif not re.search(r"\b404\b|not\s+found", body, re.I):
+        nf_ok = False
+        nf_detail["reason"] = "dist/404.html does not mention 404 / not found"
+    elif root_canonical:
+        # A 404 must not self-canonicalise to the homepage, or every unknown URL
+        # becomes an indexable duplicate of it.
+        nf_ok = False
+        nf_detail["reason"] = "dist/404.html declares a site-root canonical, making every unknown URL a homepage duplicate"
+ok_all &= add("not_found_page", nf_ok, **nf_detail)
+
+# build_provenance: the artifact must say what it is, provably.
+stamp_path = DIST / "build.json"
+prov_detail = {}
+prov_ok = stamp_path.is_file()
+if not prov_ok:
+    prov_detail["reason"] = "dist/build.json missing — run scripts/stamp-provenance after scripts/build"
+else:
+    try:
+        stamp = json.loads(stamp_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        stamp, prov_ok = {}, False
+        prov_detail["reason"] = f"dist/build.json is not valid JSON: {exc}"
+    if prov_ok:
+        if stamp.get("schema_version") != PROVENANCE_SCHEMA_VERSION:
+            prov_ok = False
+            prov_detail["reason"] = f"unexpected schema_version {stamp.get('schema_version')!r}"
+        elif not re.fullmatch(r"[0-9a-f]{40}", str(stamp.get("source_sha", ""))):
+            prov_ok = False
+            prov_detail["reason"] = f"source_sha is not a full commit sha: {stamp.get('source_sha')!r}"
+        elif (expected := expected_source_sha()) and stamp["source_sha"] != expected:
+            # A well-formed sha is not the same as the RIGHT sha. When we can learn
+            # the true commit (CI env or the local checkout), the stamp must match it.
+            prov_ok = False
+            prov_detail["reason"] = "source_sha does not match the commit being built"
+            prov_detail["declared"] = stamp["source_sha"]
+            prov_detail["expected"] = expected
+        else:
+            declared = str(stamp.get("artifact_digest", ""))
+            actual, count = artifact_digest(DIST, stamp_path)
+            prov_detail.update(source_sha=stamp["source_sha"], file_count=count)
+            if declared != f"sha256:{actual}":
+                prov_ok = False
+                prov_detail["reason"] = "artifact_digest does not match the artifact it ships inside"
+                prov_detail["declared"] = declared
+                prov_detail["actual"] = f"sha256:{actual}"
+ok_all &= add("build_provenance", prov_ok, **prov_detail)
 
 # asset_size_budget
 too_big = []

@@ -1,0 +1,133 @@
+#!/usr/bin/env python3
+"""
+Stamp build provenance into the artifact (website-portability contract).
+
+Writes dist/build.json describing THIS artifact:
+
+  {
+    "schema_version": 1,
+    "source_sha":      "<git commit the artifact was built from>",
+    "source_ref":      "<branch/ref, best effort>",
+    "built_at":        "<UTC ISO-8601>",
+    "builder":         "ci" | "local",
+    "file_count":      <int>,
+    "artifact_digest": "sha256:<hex>"
+  }
+
+WHY THIS EXISTS
+---------------
+Without it, "are the bytes we serve the bytes we verified?" is answerable only by
+hand-diffing served files against a build branch. That is exactly the kind of
+"probably fine" that this project refuses. With it, the question is one request:
+
+    curl -s https://<origin>/build.json
+
+and the answer is a commit SHA plus a digest that covers every other file in the
+artifact. `scripts/verify` recomputes the digest, so the stamp cannot describe an
+artifact other than the one it ships inside.
+
+artifact_digest is order-independent and content-addressed: for every file in
+dist/ except build.json itself, hash "<relpath>\\0<sha256(bytes)>\\n", sort those
+lines, and sha256 the concatenation. Two builds producing identical bytes produce
+identical digests regardless of filesystem walk order.
+"""
+import hashlib
+import json
+import os
+import pathlib
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+REPO = pathlib.Path(__file__).resolve().parent.parent
+DIST = REPO / "dist"
+STAMP = DIST / "build.json"
+SCHEMA_VERSION = 1
+
+
+def git(*args: str) -> str:
+    try:
+        out = subprocess.run(
+            ["git", *args], cwd=REPO, capture_output=True, text=True, timeout=10
+        )
+        return out.stdout.strip() if out.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def source_sha() -> str:
+    """The exact commit this artifact was built from, or "" if it cannot be known.
+
+    Fails closed rather than stamping a placeholder: a provenance file that says
+    "unknown" is worse than no provenance file, because it looks like an answer.
+    """
+    for env in ("GIT_SHA", "GITHUB_SHA", "CF_PAGES_COMMIT_SHA"):
+        v = os.environ.get(env, "").strip()
+        if re.fullmatch(r"[0-9a-f]{40}", v):
+            return v
+    head = git("rev-parse", "HEAD")
+    return head if re.fullmatch(r"[0-9a-f]{40}", head) else ""
+
+
+def source_ref() -> str:
+    for env in ("GITHUB_REF_NAME", "CF_PAGES_BRANCH"):
+        v = os.environ.get(env, "").strip()
+        if v:
+            return v
+    return git("rev-parse", "--abbrev-ref", "HEAD") or "unknown"
+
+
+def artifact_digest(root: pathlib.Path, exclude: pathlib.Path) -> tuple[str, int]:
+    """Order-independent content digest over every file under root except `exclude`."""
+    lines = []
+    for p in sorted(root.rglob("*")):
+        if not p.is_file() or p == exclude:
+            continue
+        h = hashlib.sha256()
+        with p.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        rel = p.relative_to(root).as_posix()
+        lines.append(f"{rel}\0{h.hexdigest()}\n")
+    lines.sort()
+    return hashlib.sha256("".join(lines).encode()).hexdigest(), len(lines)
+
+
+def main() -> int:
+    if not (DIST / "index.html").is_file():
+        print("stamp-provenance: dist/index.html missing — run scripts/build first", file=sys.stderr)
+        return 1
+
+    sha = source_sha()
+    if not sha:
+        print(
+            "stamp-provenance: cannot determine the source commit — pass GIT_SHA "
+            "(a full 40-char sha) or run inside a git checkout. Refusing to stamp "
+            "a placeholder.",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Remove a stale stamp first so it can never contribute to its own digest.
+    if STAMP.exists():
+        STAMP.unlink()
+
+    digest, count = artifact_digest(DIST, STAMP)
+    stamp = {
+        "schema_version": SCHEMA_VERSION,
+        "source_sha": sha,
+        "source_ref": source_ref(),
+        "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "builder": "ci" if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS") else "local",
+        "file_count": count,
+        "artifact_digest": f"sha256:{digest}",
+    }
+    STAMP.write_text(json.dumps(stamp, indent=2, sort_keys=True) + "\n")
+    print(f"stamp-provenance: {stamp['source_sha'][:12]} "
+          f"{stamp['artifact_digest'][:19]}… ({count} files)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
