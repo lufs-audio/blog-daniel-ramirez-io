@@ -26,11 +26,7 @@ export interface SiteConfig {
   author: string;
   /** The canonical identity hub the byline points at (not this blog). */
   authorUrl: string;
-  /**
-   * Social card for og:image / twitter:image; served from /public.
-   * Currently the square profile mark. A proper 1200x630 landscape card is built
-   * (scripts/og-card.html) but must be committed as real binary — see README.
-   */
+  /** 1200x630 social card for og:image / twitter:image; source: scripts/og-card.html. */
   ogImage: string;
   /** og:image intrinsic size, declared so unfurlers don't have to fetch to find out. */
   ogImageWidth: number;
@@ -57,11 +53,10 @@ export const site: SiteConfig = {
   author: 'Daniel Ramirez',
   // The identity hub, not the blog — so attribution consolidates on one entity.
   authorUrl: 'https://daniel-ramirez.io',
-  // Square 2250x2250 profile mark. Renders as a large square card rather than a
-  // 1.91:1 banner; swap to '/images/og-card.png' (1200x630) once that binary lands.
-  ogImage: '/images/fbf9e2_cloud-profile.png',
-  ogImageWidth: 2250,
-  ogImageHeight: 2250,
+  // The 1200x630 landscape social card (source: scripts/og-card.html).
+  ogImage: '/images/og-card.png',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
   menu: [
     { name: 'About', url: '/about/' },
     { name: 'Posts', url: '/posts/' },
