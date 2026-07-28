@@ -2,6 +2,8 @@
 title: Portfolio Problems
 date: 2025-04-16
 draft: false
+description: Four ways I kept failing at portfolio documentation, and the Obsidian-plus-OBS workflow that made capturing a moment a two-second decision instead of a whole process.
+tags: [obsidian, obs, automation, portfolio]
 ---
 
 I've been pretty inconsistent with portfolio documentation. I'll either:

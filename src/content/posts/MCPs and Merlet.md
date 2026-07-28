@@ -2,6 +2,8 @@
 title: MCPs and Merlet
 date: 2025-05-16
 draft: false
+description: In 2017 I studied with Michel Merlet, whose "Genèse Dodécaphonique des Modes" starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it.
+tags: [composition, music-theory, mcp, modes]
 ---
 In 2017, I was a student of French composer [Michel Merlet](https://en.wikipedia.org/wiki/Michel_Merlet), and he introduced me to his theoretical framework called "Genèse Dodécaphonique des Modes" – a systematic approach to understanding modal structures within the twelve-tone system. This framework has profoundly influenced my approach to composition and sound design over the years.
 

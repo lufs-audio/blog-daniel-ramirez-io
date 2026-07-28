@@ -2,6 +2,8 @@
 title: Echo Bridge Effects Pedal
 date: 2025-06-19
 draft: false
+description: Turning a San Antonio bridge's 25-repeat natural echo into a Daisy Seed guitar pedal — and why I ditched convolution for something more flexible than the landmark itself.
+tags: [dsp, hardware, daisy-seed, reverb]
 ---
 
 I recently visited a well-known local landmark called Echo Bridge and was inspired by it for my work. At first I thought I'd do a true convolution reverb, in the style of the [Tasty Chips pedal](https://www.perfectcircuit.com/tasty-chips-integral.html), but I realized that I could create something much more flexible than just a distillation of the landmark.

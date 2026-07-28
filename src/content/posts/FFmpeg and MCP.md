@@ -2,6 +2,8 @@
 title: FFmpeg and MCP 
 date: 2025-07-03
 draft: false
+description: After the dozenth throwaway bash script for batch audio conversion, I wrapped FFmpeg in an MCP server instead — not to replace the expertise, but to stop rewriting the same commands.
+tags: [ffmpeg, mcp, automation, audio-tooling]
 ---
 
 I've been processing a lot of field recordings lately, and found myself repeatedly running the same FFmpeg commands across directories full of audio files. Convert to a consistent format, apply some normalization, maybe add EQ + whatever. Each time, I'd write a quick bash script, tweak it for the specific task, and move on. But after the dozenth time doing this dance, I started thinking about building something more robust.

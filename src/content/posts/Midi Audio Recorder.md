@@ -2,6 +2,8 @@
 title: MIDI & Audio Recorder
 date: 2025-01-07
 draft: false
+description: I wanted to sit at the piano and capture a jam with one button — two stereo pairs plus MIDI, timestamped, with no DAW template tempting me to pile on effects.
+tags: [max-msp, midi, recording, tools]
 ---
 
 I've wanted a tool like this for years, because I've always found myself sitting at my piano and wishing that with one button I could very easily record a jam. Something way more pared down than a daw, with less setup time and complexity, and that won't tempt me to start piling on effects.

@@ -2,6 +2,8 @@
 title: Lua in REAPER
 date: 2025-04-11
 draft: false
+description: A monome norns got me reading Lua; REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work — and the cognitive tax of switching DAWs.
+tags: [reaper, lua, scripting, workflow]
 ---
 I first got introduced to Lua a few years ago while messing around with a [monome norns](https://llllllll.co/c/library/18). At the time, I was just downloading Lua scripts that others had made, but I found myself really interested in reading through the code and inspired by how accessible the norns was as a platform for creating new instruments and effects. The simplicity of the language combined with its power to transform hardware into entirely new sonic tools fascinated me, even though I wasn't writing my own scripts yet.
 

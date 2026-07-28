@@ -2,6 +2,8 @@
 title: Extract Wisdom
 date: 2025-04-04
 draft: false
+description: I came back from GDC 2025 with hours of voice memos I was never going to replay. Whisper plus Fabric turned them into something searchable — a small argument for open source as a public good.
+tags: [python, whisper, open-source, transcription]
 ---
 
 I came back from GDC 2025 full of ideas and insights from the Audio Summit sessions. While in San Francisco, I recorded numerous personal audio notes after talks like Wilbert Roget's lecture on the Helldivers 2 score and Cody Matthew Johnson's session on diegetic music in Star Wars Outlaws.
