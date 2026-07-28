@@ -26,6 +26,11 @@
   --code-bg:#161310;--code-surface:#1a1815;--code-text:#d7d3c4;--row-alt:rgba(239,236,224,.03);
   color-scheme:dark;
 }
+/* ---- masthead process palette: gold leads, three seasonings. The hero band's
+   swarm reads these, so the dark/light switch repaints the process instead of
+   fighting it. Light values are deepened for contrast against the cream ground. ---- */
+:root[data-theme="light"]{--viz-1:#b07d1e;--viz-2:#b4491f;--viz-3:#3f6b7e;--viz-4:#6c6a4d}
+:root[data-theme="dark"]{--viz-1:#d9a23d;--viz-2:#e0836a;--viz-3:#9fc1d0;--viz-4:#a9a77f}
 *,*::before,*::after{box-sizing:border-box}
 /* Belt-and-braces: never let stray wide content widen the layout viewport. On mobile a
    horizontal overflow inflates the layout viewport, which re-anchors right-positioned
