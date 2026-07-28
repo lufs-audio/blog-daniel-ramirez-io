@@ -61,7 +61,7 @@ export const site: SiteConfig = {
     { name: 'About', url: '/about/' },
     { name: 'Posts', url: '/posts/' },
     { name: 'Resources', url: '/resources/' },
-    { name: 'Resume', url: 'https://lufs-dev.exe.xyz/', external: true },
+    { name: 'Resume', url: 'https://resume.daniel-ramirez.io/', external: true },
     { name: 'Portfolio', url: 'https://portfolio.lufs.audio/', external: true },
     { name: 'Deck', url: 'https://deck.daniel-ramirez.io/', external: true },
   ],
