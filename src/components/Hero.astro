@@ -1,19 +1,32 @@
 ---
 /**
- * Hero — the contained masthead band: a hover-gated particle mesh (Canvas2D,
- * zero-dep, Tier B), a live date/time eyebrow linking to time.lufs.audio, the
- * page title, an optional lead, and an optional command-line ticker.
+ * Hero — the contained masthead band: a live SWARM process (Canvas2D, zero-dep),
+ * a live date/time eyebrow linking to time.lufs.audio, the page title, an
+ * optional lead, and an optional command-line ticker.
+ *
+ * The band runs particle life — the `swarm` process from the ALife study banked
+ * in `amacher-visual-process` (references/alife-study; Mohr formulation,
+ * reimplemented from the published description, no GPL code taken). Two presets
+ * exist in the registry; this component takes one as a prop:
+ *
+ *   membrane — strong self-attract, cross-repel → discrete cells with walls.
+ *              The default, and the right verb for an index: the process holds
+ *              its edges the way the post grid below it does.
+ *   chain    — i chases i+1 → a directed cycle, streaming filaments. Louder;
+ *              belongs on a hub, not on a page you scan.
  */
 interface Props {
   title: string;
   lead?: string;
   terminal?: boolean;
+  /** Which registry preset the band runs. */
+  process?: 'membrane' | 'chain';
 }
-const { title, lead, terminal = false } = Astro.props;
+const { title, lead, terminal = false, process = 'membrane' } = Astro.props;
 ---
 
 <header class="masthead reveal">
-  <canvas class="masthead__viz" id="viz" aria-hidden="true"></canvas>
+  <canvas class="masthead__viz" id="viz" data-process={process} aria-hidden="true"></canvas>
   <div class="masthead__veil"></div>
   <div class="masthead__inner">
     <a class="meta-live" id="metaLive" href="https://time.lufs.audio" target="_blank" rel="noopener noreferrer" data-hover>—</a>
@@ -29,31 +42,217 @@ const { title, lead, terminal = false } = Astro.props;
   (function () {
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // ---- hover-gated particle mesh ----
+    /* ----------------------------------------------------------------------
+       SWARM — particle life, the masthead process.
+
+       House rules this holds to:
+        - Colour is a token, not a literal: the four type colours come from
+          --viz-1..--viz-4, re-read when the dark/light switch flips, so the
+          process repaints with the theme instead of fighting it.
+        - Seeded (4021): every visitor gets the same opening signature.
+        - `step` is pure and draws nothing; `draw` never mutates state. Hover is
+          a draw-only gain, so pointing at the band cannot perturb the process.
+        - prefers-reduced-motion: warm it up, paint one still frame, stop.
+        - Off-screen: paused.
+
+       The torus is AR×1 in *height units* (AR = width/height), so cells read
+       round on a wide band instead of stretching into ellipses.
+       ---------------------------------------------------------------------- */
     (function () {
       var cv = document.getElementById('viz'); if (!cv) return;
       var ctx = cv.getContext('2d'); if (!ctx) return;
-      var DPR = Math.min(window.devicePixelRatio || 1, 2);
-      var PAL = ['#d9a23d', '#e0836a', '#9fc1d0'];
-      var W = 1, H = 1, t = 0, P = [], over = false, eng = 0, tx = .5, ty = .5, cx = .5, cy = .5;
-      function hx(c, a) { var n = parseInt(c.slice(1), 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + a + ')'; }
-      function build() { P = []; var n = Math.min(150, Math.round(W / (13 * DPR))); for (var i = 0; i < n; i++) P.push({ x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, col: PAL[i % PAL.length] }); }
-      function size() { var r = cv.getBoundingClientRect(); W = cv.width = Math.max(1, r.width * DPR); H = cv.height = Math.max(1, r.height * DPR); build(); }
-      function frame() {
-        eng += ((over ? 1 : 0) - eng) * .06; cx += (tx - cx) * .06; cy += (ty - cy) * .06;
-        var px = (cx - .5) * eng, py = (cy - .5) * eng;
-        ctx.clearRect(0, 0, W, H);
-        var pts = P.map(function (p) { return { x: (0.06 + p.x * 0.88) * W + Math.sin(t * 0.7 + p.ph) * 10 * DPR + px * 34 * DPR, y: (0.12 + p.y * 0.76) * H + Math.cos(t * 0.6 + p.ph) * 8 * DPR + py * 24 * DPR, col: p.col }; });
-        var R = W * 0.11;
-        for (var i = 0; i < pts.length; i++) for (var j = i + 1; j < pts.length; j++) { var dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, d = Math.hypot(dx, dy); if (d < R) { ctx.globalAlpha = (1 - d / R) * (0.10 + eng * 0.14); ctx.strokeStyle = hx(PAL[0], 1); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke(); } }
-        for (var k = 0; k < pts.length; k++) { var s = (1.8 + eng * 1.1) * DPR; ctx.globalAlpha = .55 + eng * .35; ctx.fillStyle = pts[k].col; ctx.beginPath(); ctx.arc(pts[k].x, pts[k].y, s, 0, 6.2832); ctx.fill(); }
-        ctx.globalAlpha = 1; t += 0.006; if (!reduce) requestAnimationFrame(frame);
+      var root = document.documentElement;
+
+      var mode = cv.getAttribute('data-process') === 'chain' ? 'chain' : 'membrane';
+      var seed = 4021;
+
+      /* process constants */
+      var NT = 4;                          // four types: gold leads, three seasonings
+      var WEIGHT = [0.4, 0.2, 0.2, 0.2];   // single-accent discipline, as a population
+      var beta = 0.3, rMax = 0.26, tHalf = 0.045, force = 5.2, dt = 1 / 60;
+
+      var DPR = 1, W = 1, H = 1, AR = 2.4;
+      var px, py, vx, vy, tp, M, COUNT = 0;
+      var running = true, over = false, eng = 0;
+      var PAL = ['#d9a23d', '#e0836a', '#9fc1d0', '#a9a77f'];
+      var GX = 3, GY = 3, cellHead = null, cellNext = null;
+
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = (a + 0x6d2b79f5) | 0;
+          var t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
       }
-      try { size(); frame(); } catch (e) {}
-      try { new ResizeObserver(function () { try { size(); } catch (e) {} }).observe(cv); } catch (e) {}
+
+      function palette() {
+        var cs = getComputedStyle(root), out = [];
+        for (var i = 1; i <= NT; i++) {
+          var v = (cs.getPropertyValue('--viz-' + i) || '').trim();
+          out.push(v || PAL[i - 1]);
+        }
+        PAL = out;
+      }
+
+      function size() {
+        DPR = Math.min(window.devicePixelRatio || 1, 2);
+        var r = cv.getBoundingClientRect();
+        var w = Math.max(1, r.width), h = Math.max(1, r.height);
+        cv.width = Math.round(w * DPR); cv.height = Math.round(h * DPR);
+        W = cv.width; H = cv.height;
+        var prevAR = AR;
+        AR = Math.max(0.6, w / h);
+        GX = Math.max(3, Math.floor(AR / rMax));
+        GY = Math.max(3, Math.floor(1 / rMax));
+        cellHead = new Int32Array(GX * GY);
+        // keep the structure across a resize: stretch x with the domain, don't reseed
+        if (px && Math.abs(AR - prevAR) > 0.01) {
+          var k = AR / prevAR;
+          for (var i = 0; i < COUNT; i++) { px[i] *= k; if (px[i] >= AR) px[i] -= AR * Math.floor(px[i] / AR); }
+        }
+      }
+
+      function reset() {
+        var r = mulberry32(seed), i;
+        M = new Float32Array(NT * NT);
+        var a, b;
+        if (mode === 'chain') {
+          for (a = 0; a < NT; a++) for (b = 0; b < NT; b++) {
+            M[a * NT + b] = b === (a + 1) % NT ? 0.9 : a === b ? 0.32 : -0.18 + (r() * 0.14 - 0.07);
+          }
+        } else {
+          for (a = 0; a < NT; a++) for (b = 0; b < NT; b++) {
+            M[a * NT + b] = a === b ? 0.95 : -0.62 + r() * 0.5;
+          }
+        }
+        var narrow = W / DPR < 820;
+        COUNT = Math.max(165, Math.min(narrow ? 340 : 800, Math.round(AR * (narrow ? 165 : 200))));
+        px = new Float32Array(COUNT); py = new Float32Array(COUNT);
+        vx = new Float32Array(COUNT); vy = new Float32Array(COUNT);
+        tp = new Uint8Array(COUNT); cellNext = new Int32Array(COUNT);
+        var cum = [], acc = 0, k;
+        for (i = 0; i < NT; i++) { acc += WEIGHT[i]; cum.push(acc); }
+        for (i = 0; i < COUNT; i++) {
+          px[i] = r() * AR; py[i] = r();
+          vx[i] = 0; vy[i] = 0;
+          var u = r() * acc; k = 0; while (k < NT - 1 && u > cum[k]) k++;
+          tp[i] = k;
+        }
+      }
+
+      function fRule(r, a) {
+        if (r < beta) return r / beta - 1;
+        if (r < 1) return a * (1 - Math.abs(2 * r - 1 - beta) / (1 - beta));
+        return 0;
+      }
+
+      /* pure: reads state, writes state, draws nothing */
+      function step() {
+        cellHead.fill(-1);
+        var i, cw = AR / GX, ch = 1 / GY;
+        for (i = 0; i < COUNT; i++) {
+          var gx = Math.min(GX - 1, (px[i] / cw) | 0), gy = Math.min(GY - 1, (py[i] / ch) | 0);
+          var c = gy * GX + gx; cellNext[i] = cellHead[c]; cellHead[c] = i;
+        }
+        var mu = Math.pow(0.5, dt / tHalf), halfX = AR / 2;
+        for (i = 0; i < COUNT; i++) {
+          var fx = 0, fy = 0;
+          var gx2 = Math.min(GX - 1, (px[i] / cw) | 0), gy2 = Math.min(GY - 1, (py[i] / ch) | 0);
+          for (var oy = -1; oy <= 1; oy++) {
+            for (var ox = -1; ox <= 1; ox++) {
+              var cgx = (gx2 + ox + GX) % GX, cgy = (gy2 + oy + GY) % GY;
+              for (var j = cellHead[cgy * GX + cgx]; j !== -1; j = cellNext[j]) {
+                if (j === i) continue;
+                var dx = px[j] - px[i]; if (dx > halfX) dx -= AR; else if (dx < -halfX) dx += AR;
+                var dy = py[j] - py[i]; if (dy > 0.5) dy -= 1; else if (dy < -0.5) dy += 1;
+                var d = Math.sqrt(dx * dx + dy * dy);
+                if (d <= 0 || d >= rMax) continue;
+                var f = fRule(d / rMax, M[tp[i] * NT + tp[j]]);
+                fx += (dx / d) * f; fy += (dy / d) * f;
+              }
+            }
+          }
+          vx[i] = vx[i] * mu + fx * rMax * force * dt;
+          vy[i] = vy[i] * mu + fy * rMax * force * dt;
+        }
+        for (i = 0; i < COUNT; i++) {
+          px[i] += vx[i] * dt; py[i] += vy[i] * dt;
+          if (px[i] < 0) px[i] += AR; else if (px[i] >= AR) px[i] -= AR;
+          if (py[i] < 0) py[i] += 1; else if (py[i] >= 1) py[i] -= 1;
+        }
+      }
+
+      /* read-only. `chain` gets a short velocity streak so the pursuit reads as
+         direction; `membrane` gets a larger dot so the cell walls read as surfaces. */
+      function draw() {
+        var chain = mode === 'chain';
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        var rad = Math.max(1.1 * DPR, H / (chain ? 200 : 155)) * (1 + eng * 0.3);
+        var trail = chain ? dt * 10 : 0, maxLen = rad * 9;
+        for (var t = 0; t < NT; t++) {
+          ctx.fillStyle = PAL[t];
+          ctx.strokeStyle = PAL[t];
+          if (trail) {
+            ctx.globalAlpha = 0.16 + eng * 0.14;
+            ctx.lineWidth = Math.max(1, rad * 0.7);
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            for (var j = 0; j < COUNT; j++) {
+              if (tp[j] !== t) continue;
+              var sx = px[j] * H, sy = py[j] * H;
+              var dxs = -vx[j] * H * trail, dys = -vy[j] * H * trail;
+              var len = Math.sqrt(dxs * dxs + dys * dys);
+              if (len < 0.4) continue;
+              if (len > maxLen) { var k2 = maxLen / len; dxs *= k2; dys *= k2; }
+              ctx.moveTo(sx, sy); ctx.lineTo(sx + dxs, sy + dys);
+            }
+            ctx.stroke();
+          }
+          ctx.globalAlpha = (chain ? 0.68 : 0.76) + eng * 0.24;
+          ctx.beginPath();
+          for (var i = 0; i < COUNT; i++) {
+            if (tp[i] !== t) continue;
+            var x = px[i] * H, y = py[i] * H;
+            ctx.moveTo(x + rad, y);
+            ctx.arc(x, y, rad, 0, 6.2832);
+          }
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function warm(n) { for (var i = 0; i < n; i++) step(); }
+
+      try {
+        palette(); size(); reset();
+        if (reduce) { warm(260); draw(); }
+        else {
+          warm(220);
+          (function loop() {
+            if (running) { eng += ((over ? 1 : 0) - eng) * 0.07; step(); draw(); }
+            requestAnimationFrame(loop);
+          })();
+        }
+      } catch (e) { return; }
+
+      try {
+        new IntersectionObserver(function (es) { running = es[0].isIntersecting; }, { threshold: 0.01 }).observe(cv);
+      } catch (e) {}
+
+      var rt;
+      window.addEventListener('resize', function () {
+        clearTimeout(rt); rt = setTimeout(function () { try { size(); if (reduce) draw(); } catch (e) {} }, 180);
+      });
+
+      try {
+        new MutationObserver(function () { palette(); if (reduce) draw(); })
+          .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+      } catch (e) {}
+
       cv.addEventListener('pointerenter', function () { over = true; });
       cv.addEventListener('pointerleave', function () { over = false; });
-      cv.addEventListener('pointermove', function (e) { var r = cv.getBoundingClientRect(); tx = (e.clientX - r.left) / r.width; ty = (e.clientY - r.top) / r.height; }, { passive: true });
     })();
 
     // ---- live date/time eyebrow (links to time.lufs.audio) ----
