@@ -2,7 +2,7 @@
 title: Echo Bridge Effects Pedal
 date: 2025-06-19
 draft: false
-description: Turning a San Antonio bridge's 25-repeat natural echo into a Daisy Seed guitar pedal — and why I ditched convolution for something more flexible than the landmark itself.
+description: Turning a San Antonio bridge's natural echo into a Daisy Seed guitar pedal + why I ditched convolution for something more flexible.
 tags: [dsp, hardware, daisy-seed, reverb]
 ---
 

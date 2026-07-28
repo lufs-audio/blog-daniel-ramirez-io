@@ -2,7 +2,7 @@
 title: Extract Wisdom
 date: 2025-04-04
 draft: false
-description: I came back from GDC 2025 with hours of voice memos I was never going to replay. Whisper plus Fabric turned them into something searchable — a small argument for open source as a public good.
+description: I came back from GDC 2025 with hours of voice memos I was never going to replay. Whisper and Fabric turned them into something searchable. A small argument for open source as a public good.
 tags: [python, whisper, open-source, transcription]
 ---
 

@@ -2,7 +2,7 @@
 title: FFmpeg and MCP 
 date: 2025-07-03
 draft: false
-description: After the dozenth throwaway bash script for batch audio conversion, I wrapped FFmpeg in an MCP server instead — not to replace the expertise, but to stop rewriting the same commands.
+description: After the dozenth throwaway bash script for batch audio conversion, I wrapped FFmpeg in an MCP server so I can stop rewriting the same commands.
 tags: [ffmpeg, mcp, automation, audio-tooling]
 ---
 

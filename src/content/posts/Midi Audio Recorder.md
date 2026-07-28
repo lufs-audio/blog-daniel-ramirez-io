@@ -2,7 +2,7 @@
 title: MIDI & Audio Recorder
 date: 2025-01-07
 draft: false
-description: I wanted to sit at the piano and capture a jam with one button — two stereo pairs plus MIDI, timestamped, with no DAW template tempting me to pile on effects.
+description: "I wanted to sit at the piano and capture a jam with one button: two stereo pairs plus MIDI, timestamped, with no DAW template tempting me to pile on effects."
 tags: [max-msp, midi, recording, tools]
 ---
 

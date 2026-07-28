@@ -2,7 +2,7 @@
 title: Spotify Canvas Generator
 date: 2024-12-31
 draft: false
-description: A Python script that takes album art, crops it to 9:16, and smears it with digital artifacting and vertical pixel glitches to spit out a Spotify Canvas.
+description: A Python script that takes album art, crops it to 9:16, and zhuzhes it up with digital artifacting and vertical pixel glitches = a Spotify Canvas.
 tags: [python, video, glitch-art, spotify]
 ---
 

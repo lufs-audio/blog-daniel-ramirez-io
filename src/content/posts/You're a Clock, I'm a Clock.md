@@ -2,7 +2,7 @@
 title: You're a Clock, I'm a Clock
 date: 2026-07-17
 draft: false
-description: The Precision Time Protocol is the drum major every networked-audio rig secretly follows — how the network elects it, and why it's always the first thing to break.
+description: The Precision Time Protocol is the drum major every networked-audio rig secretly follows. How the network elects it, and why it's always the first thing to break.
 tags: [audio-over-ip, networked-audio, ptp, aes67]
 format: analysis
 ---
