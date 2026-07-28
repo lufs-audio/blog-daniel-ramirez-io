@@ -188,7 +188,10 @@ a:hover{color:var(--accent)}
 .logo-cloud{width:42px;height:42px;animation:cloudFloat 6s ease-in-out infinite}
 .logo-cloud .eye{transform-box:fill-box;transform-origin:center;animation:cloudBlink 7s infinite}
 @keyframes cloudFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@keyframes cloudBlink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+/* the closed dwell is deliberate: the old 0%,92%,100%/96% form shut and reopened
+   inside ~0.28s, which at a 42px footer mark reads as nothing happening at all.
+   Same 7s cadence, same gesture, just long enough to register. */
+@keyframes cloudBlink{0%,88%,100%{transform:scaleY(1)}92%,94%{transform:scaleY(.08)}}
 
 /* ---- resources ---- */
 .resource-group{margin-bottom:2.2rem}
