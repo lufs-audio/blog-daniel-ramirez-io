@@ -200,10 +200,22 @@ a:hover{color:var(--accent)}
 .resource-list span{font-family:var(--mono);font-size:.68rem;color:var(--dim)}
 
 /* ---- footer ---- */
-.site-footer{margin-top:3.5rem;padding:1.8rem clamp(1.3rem,4vw,3.4rem) 2.4rem;border-top:1px solid var(--hair);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.site-footer{margin-top:3.5rem;padding:1.8rem clamp(1.3rem,4vw,3.4rem) 2.4rem;border-top:1px solid var(--hair);display:flex;align-items:center;gap:1rem 1.2rem;flex-wrap:wrap}
+/* The copy is grouped so it wraps as a unit. With the name, the copyright and the
+   64px stamp all as bare flex siblings, the copyright's old margin-left:auto put it
+   in the same corner the stamp wants, and the line went squished at mid widths. */
+.foot-txt{display:flex;align-items:baseline;gap:.3rem 1rem;flex-wrap:wrap;min-width:0}
 .site-footer a{font-family:var(--display);font-weight:600;color:var(--text)}
 .site-footer a:hover{color:var(--accent-txt)}
-.site-footer small{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--dim);margin-left:auto}
+.site-footer small{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;color:var(--dim);white-space:nowrap}
+/* footer verification stamp (lufs-vh) — ring-68 carrier + scope face, derived from
+   this site's own canonical URL. Transparent on purpose, so the one file sits
+   correctly on both the charcoal and the cream ground: no theme-conditional rule,
+   and it rides the dark/light toggle for free. Deliberately not a link and not
+   decorative chrome — it's a stamp, so it gets real size. Sizes/opacity match
+   resume.daniel-ramirez.io and daniel-ramirez.io exactly. */
+.vh-mark{width:64px;height:64px;flex:none;display:block;margin-left:auto;opacity:.92}
+@media (max-width:680px){.vh-mark{width:52px;height:52px}}
 
 /* ---- cursor + reveal ---- */
 .cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;border-radius:50%;mix-blend-mode:difference}
@@ -230,7 +242,8 @@ a:hover{color:var(--accent)}
   /* split view collapses to single column on mobile (slide-out used instead) */
   .reader__source{display:none}
   .reader.split .reader__rendered{margin-inline:auto;height:auto;overflow:visible;padding-right:0}
-  .site-footer small{margin-left:0;width:100%}
+  /* the old `small{margin-left:0;width:100%}` override is gone: the copyright now
+     lives inside .foot-txt and no longer needs to be un-pushed from the right. */
 }
 @media (max-width:540px){ body{font-size:16px} .masthead__inner{min-height:220px} }
 @media (prefers-reduced-motion:reduce){ .reveal{opacity:1;transform:none;transition:none} .webring__mark i,.logo-cloud,.logo-cloud .eye,.termline .blk{animation:none} .reader__rendered,.reader__source,.src-inner{transition:none} }

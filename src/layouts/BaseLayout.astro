@@ -82,7 +82,10 @@ const jsonLd =
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href={site.favicon} />
+    <!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. -->
+    <link rel="icon" type="image/svg+xml" href={site.visualHash?.mark ?? site.favicon} />
     <link rel="alternate" type="application/rss+xml" title={site.brand} href={site.feedUrl} />
     <link rel="canonical" href={pageUrl} />
 
@@ -186,8 +189,25 @@ const jsonLd =
         <slot />
         <footer class="site-footer">
           <CloudMark />
-          <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a>
-          <small>© {year} LUFS Audio</small>
+          {/* copy grouped so it wraps as a unit and can't get squished against the stamp */}
+          <div class="foot-txt">
+            <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a>
+            <small>© {year} LUFS Audio</small>
+          </div>
+          {/* lufs-vh stamp, bottom-right. Same file as the favicon. Deliberately NOT a
+              link — it's a seal, not navigation. See site.ts for how to re-derive it. */}
+          {site.visualHash && (
+            <img
+              class="vh-mark"
+              src={site.visualHash.mark}
+              alt={site.visualHash.alt}
+              title={site.visualHash.alt}
+              width="64"
+              height="64"
+              loading="lazy"
+              decoding="async"
+            />
+          )}
         </footer>
       </main>
     </div>
