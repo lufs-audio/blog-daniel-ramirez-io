@@ -6,7 +6,9 @@
  * (e.g. About's webring + cloud), outside .prose.
  *
  * View source: pass `source` (raw markdown) to enable the Obsidian-style reader.
- * Desktop = a "seam-split" wipe; mobile = the slide-out panel. View source is
+ * Desktop = a "seam-split" wipe; mobile = the slide-out panel. Also bound to the
+ * bare `s` key — an unadvertised shortcut, intentionally not surfaced in the UI.
+ * Escape closes. View source is
  * format-agnostic — every markdown format keeps it, because the body is still
  * markdown; `format` only changes the chrome around it (driven by frontmatter).
  *
@@ -92,8 +94,11 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
           {dateISO && !kicker && <time class="post__date" datetime={dateISO}>{dateLabel}</time>}
           {dek && <p class="post__dek">{dek}</p>}
 
+          {/* Attribution only. The date is already rendered once above — as .post__date,
+              or inside .post__kicker when a kicker is set — so repeating it beside the
+              byline printed the same date twice in the dispatch header. */}
           {format === 'dispatch' && (
-            <p class="byline"><span>By Daniel Ramirez</span>{dateISO && <time datetime={dateISO}>{dateLabel}</time>}</p>
+            <p class="byline"><span>By Daniel Ramirez</span></p>
           )}
           {illustrative && <div class="fmt-banner">Illustrative — placeholder copy &amp; figures to show the format</div>}
         </header>
@@ -249,6 +254,24 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
         var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
         if (scrim) scrim.addEventListener('click', closeSlide);
         addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
       })();
     </script>
   )}
