@@ -33,6 +33,8 @@ interface Props {
   showSource?: boolean;
   /** Content wrapper class: 'prose' for articles, 'about-lead' for the About blurb. */
   contentClass?: string;
+  /** Forwarded to BaseLayout: run the swarm as a page-wide ambient ground. */
+  backdrop?: boolean;
   /** format registry (freeform routes to FreeformLayout, not this file) */
   format?: Format;
   dek?: string;
@@ -53,6 +55,7 @@ interface Props {
 }
 const {
   title, date, description, tags = [], source, showSource = !!source, contentClass = 'prose',
+  backdrop = false,
   format = 'standard', dek, kicker,
   repo, stack = [], tldr,
   sources = [],
@@ -77,6 +80,7 @@ const repoLabel = repo ? repo.replace(/^https?:\/\//, '') : undefined;
   type={date ? 'article' : 'website'}
   publishedDate={date}
   tags={tags}
+  backdrop={backdrop}
 >
   <div class="view-pad">
     {showSource && (
