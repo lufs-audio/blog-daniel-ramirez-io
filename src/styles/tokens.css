@@ -216,6 +216,17 @@ a:hover{color:var(--accent)}
    resume.daniel-ramirez.io and daniel-ramirez.io exactly. */
 .vh-mark{width:64px;height:64px;flex:none;display:block;margin-left:auto;opacity:.92}
 @media (max-width:680px){.vh-mark{width:52px;height:52px}}
+/* Mobile: the stamp always drops to CENTRE. daniel-ramirez.io is the reference
+   implementation (`.site-footer{justify-content:center;text-align:center}` at
+   768) and resume.daniel-ramirez.io now matches; all three sites share this
+   breakpoint and this behaviour. margin-left:auto MUST be released here — left
+   in place it absorbs the free space and keeps the mark pinned right, silently
+   defeating justify-content:center. */
+@media (max-width:768px){
+  .site-footer{justify-content:center;text-align:center}
+  .foot-txt{justify-content:center}
+  .vh-mark{margin-left:0}
+}
 
 /* ---- cursor + reveal ---- */
 .cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;border-radius:50%;mix-blend-mode:difference}
