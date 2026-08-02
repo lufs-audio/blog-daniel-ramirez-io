@@ -1,6 +1,34 @@
 schema_version: 1
 site_id: blog-daniel-ramirez-io
-canonical_url: https://blog.daniel-ramirez.io
+# Trailing slash is load-bearing, not cosmetic: astro.config.mjs sets
+# trailingSlash:'always', BaseLayout emits <link rel="canonical"
+# href="https://blog.daniel-ramirez.io/">, and the lufs-vh mark below is derived
+# from this exact string. All three must agree or `vh attest` against the
+# canonical form fails.
+canonical_url: https://blog.daniel-ramirez.io/
+# lufs-vh verification mark — ONE file, one payload, two jobs.
+#
+# The same mark is the footer stamp and the favicon, so the tab icon and the
+# seal at the bottom of the page are literally the same image at two sizes.
+#
+#   lufs-vh render "https://blog.daniel-ramirez.io/" \
+#        -S ring-68 -F scope -P dr-muted -o vh-blog-ring.svg
+#
+# sha256  3cd3daeb134c5a578af289eb2828d795951a333ac6be0f40bdf96e41c7a879b6
+# ring-68 carries the first 14 bytes of that digest. It verifies:
+#   lufs-vh attest <file.png> "https://blog.daniel-ramirez.io/"  -> exit 0
+# and attesting it against any OTHER url exits 5 — including the slash-less
+# "https://blog.daniel-ramirez.io", which is why canonical_url above carries the
+# slash. So the mark is bound to this site rather than being decoration that
+# happens to look technical.
+#
+# Transparent (the tool's default) so one file composites onto BOTH themes.
+# Do not hand-edit or redraw: `attest` re-derives the mark from the URL and
+# compares bytes, and that check is the only thing that makes it mean anything.
+# If the canonical URL changes, re-render — never patch.
+visual_hash:
+  mark: "/vh-blog-ring.svg"
+  alt: "lufs-vh verification mark for blog.daniel-ramirez.io"
 source:
   repository: danialrami/blog-daniel-ramirez-io
   production_ref: main

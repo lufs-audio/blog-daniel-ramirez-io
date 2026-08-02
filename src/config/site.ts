@@ -40,9 +40,12 @@ export interface SocialLink {
  * and compares bytes, and that check is the only thing that makes it mean anything.
  * If the canonical URL changes, re-render — never patch.
  *
- * `null` until the mark is rendered and committed to /public: the footer stamp is
- * omitted and the favicon falls back to the cloud data-URI, so the site stays
- * correct rather than shipping a placeholder that would fail attestation.
+ * `null` would omit the stamp and fall the favicon back to the cloud data-URI —
+ * the honest state before a mark exists, rather than a placeholder that fails
+ * attestation. This site's mark IS rendered and committed, and was proven with:
+ *   lufs-vh attest <png-of-same-payload> "https://blog.daniel-ramirez.io/"
+ *   -> ATTESTED (exit 0); the same file against "https://daniel-ramirez.io/"
+ *      or the slash-less "https://blog.daniel-ramirez.io" exits 5.
  */
 export interface VisualHash {
   /** Absolute site path to the committed SVG, e.g. '/vh-blog-ring.svg'. */
@@ -91,10 +94,10 @@ export const site: SiteConfig = {
   // Real profile photo (binary lives at public/images/fbf9e2_cloud-profile.png).
   brandImage: '/images/fbf9e2_cloud-profile.png',
   favicon: CLOUD_FAVICON,
-  // Flip to { mark: '/vh-blog-ring.svg', alt: 'lufs-vh verification mark for
-  // blog.daniel-ramirez.io' } once the rendered SVG is committed to public/.
-  // Until then the stamp is omitted and CLOUD_FAVICON stands in — never a redraw.
-  visualHash: null,
+  visualHash: {
+    mark: '/vh-blog-ring.svg',
+    alt: 'lufs-vh verification mark for blog.daniel-ramirez.io',
+  },
   canonicalUrl: 'https://blog.daniel-ramirez.io',
   author: 'Daniel Ramirez',
   // The identity hub, not the blog — so attribution consolidates on one entity.
