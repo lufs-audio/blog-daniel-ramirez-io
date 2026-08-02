@@ -7,6 +7,6 @@ if (!entry) throw new Error('about/about content entry not found');
 const { Content } = await render(entry);
 ---
 
-<PostLayout title={entry.data.title} date={entry.data.date} contentClass="about-lead" backdrop>
+<PostLayout title={entry.data.title} date={entry.data.date} contentClass="about-lead" backdrop={true}>
   <Content />
 </PostLayout>
