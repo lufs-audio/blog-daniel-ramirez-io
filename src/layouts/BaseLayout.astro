@@ -6,6 +6,7 @@
  */
 import { site } from '../config/site';
 import CloudMark from '../components/CloudMark.astro';
+import Swarm from '../components/Swarm.astro';
 import '../styles/tokens.css';
 
 interface Props {
@@ -17,6 +18,12 @@ interface Props {
   publishedDate?: Date;
   /** Topical tags — become article:tag + JSON-LD keywords. */
   tags?: string[];
+  /**
+   * Run the swarm as a page-wide ambient ground instead of (or as well as) a
+   * masthead band. Opt-in per page: About uses it because it has no masthead
+   * and reads as one continuous statement rather than an index you scan.
+   */
+  backdrop?: boolean;
 }
 const {
   title,
@@ -24,6 +31,7 @@ const {
   type = 'website',
   publishedDate,
   tags = [],
+  backdrop = false,
 } = Astro.props;
 const pageTitle = title === site.brand ? site.brand : `${title} · ${site.brand}`;
 const year = new Date().getFullYear();
@@ -142,6 +150,13 @@ const jsonLd =
     <div class="cur-dot" aria-hidden="true"></div>
     <div class="cur-ring" aria-hidden="true"></div>
     <div class="source-scrim" id="scrim" aria-hidden="true"></div>
+
+    {backdrop && (
+      <div class="pagefield" aria-hidden="true">
+        <Swarm variant="field" process="membrane" />
+        <div class="pagefield__veil"></div>
+      </div>
+    )}
 
     <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) -->
     <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme">
