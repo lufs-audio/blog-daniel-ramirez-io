@@ -1,10 +1,16 @@
 ---
-title: "Process Registries, and Workchain"
+id: Process Registries, and Workchain
+aliases: []
+tags:
+  - process
+  - workchain
+  - audio-tooling
+  - verification
 date: 2026-08-07
+description: I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard.
 draft: false
-description: "I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard."
-tags: ["process", "workchain", "audio-tooling", "verification"]
 format: analysis
+title: Process Registries, and Workchain
 ---
 Up until the past year or so, whenever I had an idea for a tool, I'd just make a new subfolder in ~/repos and sketch it out -- I bet that's pretty common. The tool can be whatever, but one of my favorite/most useful tools to make are scripts which can finalize a set of audio file deliverables to guarantee that they're up to a client's spec. A common deliverable requirement might look like this, let's say for vocal speech files:
 
@@ -41,7 +47,7 @@ $ ffprobe -v error -select_streams a:0 \
 
 Sample rate, channels, bit depth, one line — and if that middle number ever reads `2` on a file meant to be mono, there's your problem staring back at you. That's the whole promise of benchmarking against a spec: you don't have to re-audition four minutes of audio to know it's wrong. You run a string comparison against a target and the file either matches or it doesn't.
 
-The thing is, eventually I hand random deliverable audit scripts all over ~/repos, like ~/repos/client-A-deliverables, ~/repos/client-N-deliverables. The scripts themselves were almost always the same logic, and the reason I never reused a folder is usually because by the time I needed the script again, I couldn't remember where it was in ~/repos lmfao. Funny to admit, but yeah.
+The thing is, eventually I have random deliverable audit scripts all over ~/repos, like ~/repos/client-A-deliverables, ~/repos/client-N-deliverables. The scripts themselves were almost always the same logic, and the reason I never reused a folder is usually because by the time I needed the script again, I couldn't remember where it was in ~/repos lmfao. Funny to admit, but yeah.
 
 It's also not the first time I've written about this sort of struggle! It's the thing I've noticed that I need to improve, and I've written about it before from the other direction. A while back I got tired of rewriting the same set of ffmpeg commands for batch conversion and [wrapped it in an MCP server](https://blog.daniel-ramirez.io/posts/ffmpeg-and-mcp/) so I could stop, which actually worked pretty well for a while! What I didn't notice at the time is that it only moved the problem up one floor. Eventually, I stopped losing the *commands* and started losing the *pipelines* — the specific ordered arrangement of steps that got a batch of tracks from a session folder to something I'd actually deliver. So I was sorta back in the same place.
 
@@ -49,7 +55,7 @@ It turns out, the unit I kept losing was always the process, with the files bein
 
 ## This is a post about process
 
-My process really needed some work, so I went back to the basics. I started by thinking "how can I make this generalizeable?" and eventually, I stopped to consider a bigger question "can I make a tool that can generalize process?" Why the heck would I do that??
+My flow has really needed some work, so I went back to the basics. I started by thinking "how can I make this generalizeable?" and eventually, I stopped to consider a bigger question "can I make a tool that can generalize process?" Why the heck would I do that??
 
 When I say a *process*, I'm talking about one idea made runnable. It's not a script per se — a script is an implementation detail, so my process is definitely going to *include* a script! But I'm not going far enough down the generalization rabbit hole that I'm going to reinvent a computer, lmfao. The process, instead, is the mechanism: normalize to a loudness target; separate a mix into stems; derive an image from a spectrogram; take a rhythmic cell and phase it against itself. One idea, small enough to name, general enough to point at different inputs. For me, that looks like a signal chain.
 
@@ -67,7 +73,7 @@ Gottfried Michael Koenig was building software to compose with at Utrecht in the
 
 ## A registry, not a collection
 
-Here's my argument: once you have a handful of processes written down as proper self-contained things, the obvious move is to collect them: put them in a directory, give each one a folder, boom bam done! you have something that *looks* finished 👏 It might even look like the solution! But in fact, I'm arguing that it's still one property short.
+Here's my argument: once you have a handful of processes written down as proper self-contained things, the obvious move is to collect them: put them in a directory, give each one a folder, boom bam done! You have something that *looks* finished 👏 It might even look like the solution! But in fact, I'm arguing that it's still one property short.
 
 A folder of processes is like a parts bin. If I take a look inside, I can see the parts in front of me, but what exactly am I looking at? It's just a pile for now, and it slowly grows bigger as I add more processes over time, until it kills the ability to find anything and I'm back where I started. I needed an indexing tool that sits on top, which can also hold each process accountable as well, to defend its own right to be included. Luckily, I'm not describing anything new: it's just a registry, and it's why the third bullet point above -- the manifest -- is actually not optional.
 
@@ -128,7 +134,7 @@ steps:
     params: {}
 ```
 
-That's literally the whole recipe! If processes are the vocabulary, this is a sentence. The last step hashes the finished audio with SHA-256 and takes the first eight hex characters as a catalog number, which is why everything on [catalog.lufs.audio](https://catalog.lufs.audio) is named something like `lufs-290c4817`. The identity of a release is the content of the release. Rename the file, move it, back it up wrong — the number still finds it.
+That's literally the whole recipe! If processes are the vocabulary, this is a sentence. The last step hashes the finished audio with SHA-256 and takes the first eight hex characters as a catalog number, which is why everything on [catalog.lufs.audio](https://catalog.lufs.audio) is named something like `lufs-290c4817`. The identity of a release is the content of the release. Rename the file, move it, back it up wrong — the number still finds it. Plus, the deliverable example above? Each spec is a recipe too, ~super slick~
 
 <iframe src="https://catalog.lufs.audio/embed/lufs-290c4817" width="100%" height="152" frameborder="0" loading="lazy" allow="autoplay; encrypted-media" style="border:none;border-radius:14px;max-width:456px"></iframe>
 
