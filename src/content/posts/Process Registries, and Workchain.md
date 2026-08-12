@@ -134,7 +134,7 @@ steps:
     params: {}
 ```
 
-That's literally the whole recipe! If processes are the vocabulary, this is a sentence. The last step hashes the finished audio with SHA-256 and takes the first eight hex characters as a catalog number, which is why everything on [catalog.lufs.audio](https://catalog.lufs.audio) is named something like `lufs-290c4817`. The identity of a release is the content of the release. Rename the file, move it, back it up wrong — the number still finds it. Plus, the deliverable example above? Each spec is a recipe too, ~super slick~
+That's literally the whole recipe! If processes are the vocabulary, this is a sentence. The last step hashes the finished audio with SHA-256 and takes the first eight hex characters as a catalog number, which is why everything on [catalog.lufs.audio](https://catalog.lufs.audio) is named something like `lufs-290c4817`. The identity of a release is the content of the release. Rename the file, move it, back it up wrong — the number still finds it. Plus, the deliverable example above? Each spec is a recipe too, so a deliverable type becomes a profile instead of a repo I'll lose the second I look away.
 
 <iframe src="https://catalog.lufs.audio/embed/lufs-290c4817" width="100%" height="152" frameborder="0" loading="lazy" allow="autoplay; encrypted-media" style="border:none;border-radius:14px;max-width:456px"></iframe>
 
