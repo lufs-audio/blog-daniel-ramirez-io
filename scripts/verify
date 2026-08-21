@@ -178,22 +178,24 @@ else:
         elif not re.fullmatch(r"[0-9a-f]{40}", str(stamp.get("source_sha", ""))):
             prov_ok = False
             prov_detail["reason"] = f"source_sha is not a full commit sha: {stamp.get('source_sha')!r}"
-        elif (expected := expected_source_sha()) and stamp["source_sha"] != expected:
-            # A well-formed sha is not the same as the RIGHT sha. When we can learn
-            # the true commit (CI env or the local checkout), the stamp must match it.
-            prov_ok = False
-            prov_detail["reason"] = "source_sha does not match the commit being built"
-            prov_detail["declared"] = stamp["source_sha"]
-            prov_detail["expected"] = expected
         else:
-            declared = str(stamp.get("artifact_digest", ""))
-            actual, count = artifact_digest(DIST, stamp_path)
-            prov_detail.update(source_sha=stamp["source_sha"], file_count=count)
-            if declared != f"sha256:{actual}":
+            expected = expected_source_sha()
+            if expected and stamp["source_sha"] != expected:
+                # A well-formed sha is not the same as the RIGHT sha. When we can learn
+                # the true commit (CI env or the local checkout), the stamp must match it.
                 prov_ok = False
-                prov_detail["reason"] = "artifact_digest does not match the artifact it ships inside"
-                prov_detail["declared"] = declared
-                prov_detail["actual"] = f"sha256:{actual}"
+                prov_detail["reason"] = "source_sha does not match the commit being built"
+                prov_detail["declared"] = stamp["source_sha"]
+                prov_detail["expected"] = expected
+            else:
+                declared = str(stamp.get("artifact_digest", ""))
+                actual, count = artifact_digest(DIST, stamp_path)
+                prov_detail.update(source_sha=stamp["source_sha"], file_count=count)
+                if declared != f"sha256:{actual}":
+                    prov_ok = False
+                    prov_detail["reason"] = "artifact_digest does not match the artifact it ships inside"
+                    prov_detail["declared"] = declared
+                    prov_detail["actual"] = f"sha256:{actual}"
 ok_all &= add("build_provenance", prov_ok, **prov_detail)
 
 # asset_size_budget
