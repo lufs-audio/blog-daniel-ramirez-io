@@ -1,10 +1,16 @@
 ---
-title: You're a Clock, I'm a Clock
+id: You're a Clock, I'm a Clock
+aliases: []
+tags:
+  - audio-over-ip
+  - networked-audio
+  - ptp
+  - aes67
 date: 2026-07-17
-draft: false
 description: The Precision Time Protocol is the drum major every networked-audio rig secretly follows. How the network elects it, and why it's always the first thing to break.
-tags: [audio-over-ip, networked-audio, ptp, aes67]
+draft: false
 format: analysis
+title: You're a Clock, I'm a Clock
 ---
 
 When I was in high school, I spent a couple of summers sweating through a black-and-white marching band uniform that never actually fit. My shako (a tall hat topped with a flamboyant plume) kept sliding down my forehead, covering my eyes so I looked like I was furrowing my brows at the crowd while trying my best to play John Philip Sousa.
@@ -31,7 +37,7 @@ This process is called the **Best Master Clock Algorithm** (BMCA), and it runs i
 
 On a Dante network this happens [automatically, with no setup at all](https://www.getdante.com/support/faq/how-does-dante-clocking-work/). A device with a GPS-disciplined external clock input wins, a gigabit-connected device beats an older 100-megabit box, and if the network is somehow faced with a dead tie, [the lowest MAC address breaks it](https://dev.audinate.com/GA/dante-controller/userguide/webhelp/content/clock_synchronization.htm). It's a small, self-organizing democracy that re-runs every time you plug something in or pull something out.
 
-Once the election is settled and the drum major is on the pedestal, keeping everyone in step becomes a continuous conversation of timestamps. But before we look at the math, we have to litigate the massive, load-bearing assumption holding the entire roof up: symmetry.
+Once the election is settled and the drum major is on the pedestal, keeping everyone in step becomes a continuous conversation of timestamps. But before we look at the math, we have to litigate the massive assumption holding the entire roof up: symmetry.
 
 For the arithmetic to work, a packet's journey from Leader to Follower has to take the exact same number of nanoseconds as the return trip. On an isolated network with dedicated media switches, that's a reasonable bet. On a standard corporate network crammed with office traffic, printer queries, and large file downloads? It is a massive leap of faith. If a switch delays the return packet by even half a microsecond, the math breaks, the Follower corrects for an error that does not exist, and the clock drifts.
 
