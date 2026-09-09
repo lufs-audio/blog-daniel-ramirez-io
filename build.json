@@ -1,0 +1,9 @@
+{
+  "artifact_digest": "sha256:83cdd1b65928b1c183568b67483dd027198c4a73d90c9c8d091281c759724d60",
+  "builder": "ci",
+  "built_at": "2026-09-09T01:32:05Z",
+  "file_count": 60,
+  "schema_version": 1,
+  "source_ref": "main",
+  "source_sha": "4735caaccb3011f16ae08de2c98d01ad6297c261"
+}

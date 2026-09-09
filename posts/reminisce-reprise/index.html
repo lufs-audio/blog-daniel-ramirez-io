@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Reminisce (Reprise) · Daniel Ramirez</title><meta name="description" content="Releasing a reprise of a piano solo I wrote when I was 16, and the foundation I built underneath it so I don't make a habit of releasing every 12 years."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/reminisce-reprise/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="Reminisce (Reprise) · Daniel Ramirez"><meta property="og:description" content="Releasing a reprise of a piano solo I wrote when I was 16, and the foundation I built underneath it so I don't make a habit of releasing every 12 years."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/reminisce-reprise/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2026-08-14T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="music"><meta property="article:tag" content="release"><meta property="article:tag" content="composition"><meta property="article:tag" content="portability"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Reminisce (Reprise) · Daniel Ramirez"><meta name="twitter:description" content="Releasing a reprise of a piano solo I wrote when I was 16, and the foundation I built underneath it so I don't make a habit of releasing every 12 years."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Reminisce (Reprise)","description":"Releasing a reprise of a piano solo I wrote when I was 16, and the foundation I built underneath it so I don't make a habit of releasing every 12 years.","datePublished":"2026-08-14T00:00:00.000Z","dateModified":"2026-08-14T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/reminisce-reprise/"},"url":"https://blog.daniel-ramirez.io/posts/reminisce-reprise/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"music, release, composition, portability"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="standard"> <header class="post__header reveal">  <h1 class="post__title">Reminisce (Reprise)</h1> <time class="post__date" datetime="2026-08-14">August 14, 2026</time>     </header>    <div class="prose reveal"> <iframe allow="autoplay *; encrypted-media *;" frameborder="0" height="450" style="width:100%;max-width:660px;overflow:hidden;background:transparent;" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation" src="https://embed.music.apple.com/us/album/reminisce-reprise-ep/6799611550"></iframe>
+<p>I’m releasing a song today, which is an update to a song I wrote back in the day. A v2, a hotfix, a plus/pro/ultra model, if you will.</p>
+<p>The first time I released the song, it was 2013 and I was 16. I’d written the song about a year prior, I think, and I had been taking piano lessons for a couple of years already. As I’ve written about before, I also <a href="https://blog.daniel-ramirez.io/posts/you-re-a-clock-i-m-a-clock/">played the sax in marching band</a>, and I was very seriously considering studying music theory and classical composition in college. The original was about my grandfather (who we call “Nonno”, even though we’re not italian lol) who’d passed away earlier, and it’s about remembering him, so I called it “Reminisce”. I recorded it in a studio along with other piano solos I wrote at that time, and then I distributed it through tunecore, made CDs on CDBaby, and passed them out to my friends at school.</p>
+<p>I’d be lying if I said I remembered exactly what I was trying to write the first time around — I knew I was practicing arpeggios on my desk in biology class though, so that’s what I rolled with. G major sat nicely in between my fingers as they were starting to look like my dad’s hands, and I remember I could not for the life of me understand the concept of a secondary dominant. V/V?! In this economy?? So I wrote about what I knew.</p>
+<p>What I can say though is that the memories of my granddad and I are very warm! He was a super-jokester, and granted my spanish is rough so I only sorta understood the jokes, but his laugh made me laugh so it’s all good. He was a grandpa that carried around Werther’s and pulled money out of my ear. Seriously, it’s goals dude. He and my grandma (“Nonna”, naturally) came down from San Francisco to visit often, and they were both super supportive of me playing and studying music. My grandma had actually told me that she’d wanted to study music when she was younger, so she felt like she was getting to live vicariously through me in that. My whole family would agree that my grandma was a creative powerhouse: many of my relative’s houses are decorated with at least a few of her paintings, she was/is still a fashion icon, and my mom and my tias still have jewelry that were made by her (also, she was the first person I saw using a soldering iron!). After my granddad passed away, my grandma fused his wedding ring to hers, and wore it like that for over a decade, until she passed a couple of summers ago, with a chrysanthemum in her hands. I couldn’t begin to cover all of the amazing things about them, but like all the best grandparents, their life path still resonates through me.</p>
+<p>When my granddad died, I was a kid who liked composing music, and I wanted to continue exploring the discipline for the rest of my life. And when my grandmother died, I was five years out of music school, freelancing as a sound designer, and LUFS Audio was just about to become incorporated!🚀 At her funeral, my sister put together a video with pictures of my grandparents that my whole family laughed and cried at, and I wrote the music that played underneath it: an updated rendition of Reminisce, which I appended “Reprise” to.</p>
+<p>Losing a grandparent is an experience that everyone goes through, ordinary and life-changing all the same. It meets you exactly where you happen to be standing in your life, sometimes without warning. Today I’m writing about the way that I went about releasing this, from the platform, to the infra, to the artwork, and I’ll talk a bit more about the piece itself too. The piece that comes out today is the product of a very different set of tools than when I was in high school, handing out CDs.</p>
+<h2 id="i-held-back-from-releasing-it-back-in-the-day-and-this-time-around-too">I held back from releasing it back in the day, and this time around too</h2>
+<p>So like I mentioned before, the reprise has been finished for a couple of years already, since 2024, and I sat on it for a couple of years. Not because I thought it needed more work, and not because I didn’t want to share it with folks. Honestly, I sat on it because I didn’t want to put it somewhere I could lose it, and I was apprehensive of putting out some new piece of music during a time when artists were justifiably reeling from finding out their own work had been scraped off the internet. At the time, I wouldn’t have been able to tell you which parts of “putting music out” were mine, which parts I was renting, and which gates I had to go through to protect myself and my work.</p>
+<p>“The parts that were mine” might sound kinda abstract at first: the typical route for artists tends to render their creative output as fulfilled the second they hand off their final mix to distribution, and the rest is promo. Which! For independent artists, is oftentimes very creative as well. In that way I’m typical, but to me the handoff is the part that I still wanted to figure out how to play a part in. As artists know, the mainstream music industry is made up of a cartel of a few companies: <a href="https://www.billboard.com/pro/nmpa-spotify-amazon-streaming-bundles-cost-500m-lost-value/">Spotify</a>, <a href="https://techcrunch.com/2026/01/28/apple-tells-patreon-to-move-creators-to-in-app-purchase-for-subscriptions-by-november/">Apple</a>, <a href="https://www.billboard.com/pro/umg-believe-settle-lawsuit-over-kendrick-knockoff-songs/">UMG</a>, and others. It’s not unheard of for a subscription to lapse and a catalog to go dark, or a platform to get acquired and then <a href="https://www.digitalmusicnews.com/2026/01/02/napster-music-streaming-shut-down-ai-pivot/">shut down entirely</a>, or for the code that identifies your recording to turn out to belong to a vendor (or a label) rather than to you. For most releases, that’s the cost of doing business. For the piece I wrote for my grandparents, named in honor of happier, simpler times, and which represents continuity and productive growth, I sat on it until I could do a little bit better.</p>
+<p><strong>And I’ll cut to the chase here: for what I was looking for, and for what I’m releasing, the fear is only in proportion to how I feel about owning my own work.</strong> If I had uploaded it in 2024 it would almost certainly have been fine. The realistic downside was small and mostly reversible. So it was a vibes thing! But it was a reaction to the question that I felt but could only put to words later: “If the record of my music lives somewhere where it can be lost anytime, how can I balance the risk of non-permanence and deletion for work which is too meaningful to lose?”</p>
+<p>I’m positive I’m not the only person who has worried about it, and the way the current industry works it makes more sense just to keep recording and releasing than worry about the powers that be. But I’m insane, and I build things, because imo composing is a systemic act, not an inherently musical one. Two years later, I’m self-hosting <a href="https://catalog.lufs.audio/">catalog.lufs.audio</a>, along with the canonical release record, and a solid sense of what I’m owning versus what I’m renting. So the anxiety was bad epistemics and good motivation, which I’ve decided I’ll live with 🤷</p>
+<p>The final unlock for me was knowing where the floor was. I needed the shape written down somewhere I could point at, so I knew what I’d be standing on and where I could take off from and come back to. Once the posture was legible, the release stopped being a stretch goal in my mind, and the remaining work turned into ordinary admin.</p>
+<p>Even still, I think it’s reasonable to wonder why any of this matters. The floor is a system I built for myself, but I haven’t really shown what using it looks like — what the <em>actual work</em> of preparing this release was, separate from the anxiety about where it would live.</p>
+<p>When I finished the piece and knew I wanted to release it, I stopped worrying about the infra for a minute and started working on the assets: the cover, the motion video for Apple Music, and the looping canvas for streaming platforms. I had the tools — a visual process registry in the style of Workchain that I’d been building for my websites’ visuals — but using them for an actual release was new. And the more I worked on those, the more I kept circling back to the word I chose without even really thinking about it. I took my time exploring the form and origin of reprise, because I had a feeling about what the word was doing, but basically it was just another vibe lol. Like, musicians know this word! It means something along the lines of “returning to something, changed”. That already felt appropriate enough, but I was more curious about why the word felt right for me in this case, more than just in the context of the music.</p>
+<h2 id="what-a-reprise-actually-is">What a reprise actually is</h2>
+<p>I went and checked, and like all great english words, it’s french:</p>
+<p>In French the technical vocabulary is blunter than the English. Larousse’s <em>Dictionnaire de la musique</em> <a href="https://www.larousse.fr/encyclopedie/musdico/reprise/169831">defines <em>reprise</em></a> as <em>“répétition intégrale d’une partie d’une œuvre musicale”</em>, a complete repetition of part of a work. The repeat sign at the end of a section is literally called a <em>barre de reprise</em>. So the first meaning of the word is just: “play it again”.</p>
+<p>But the same entry keeps going, and this is the part I keep thinking about:</p>
+<blockquote>
+<p><em>“Parfois, la reprise n’est pas textuelle, mais laisse place à diverses modifications (variations) qui laissent cependant reconnaissable la forme originale déjà entendue. Elle est dite, dans ce cas, reprise variée.”</em></p>
+</blockquote>
+<p>Sometimes the reprise is not literal. It makes room for modifications, <strong>provided they leave the already-heard original recognizable.</strong> There’s even a name for that case, <em>reprise variée</em>.</p>
+<p>I love that there’s a condition attached. You can change the original material, but only up to the point that that it remains recognizable! That feels to me like it’s a rule about a lot more than music: it’s about growth, grief, memory. All that in a dictionary definition! Like I said, French 👏</p>
+<p>The stronger version shows up in sonata form, where the return is actually <em>required</em> to change. <a href="https://viva.pressbooks.pub/openmusictheory/chapter/sonata-form/">Open Music Theory</a> puts it plainly: the recapitulation restates the exposition’s material “but with the necessary adjustments so that the secondary theme and closing sections are now in the tonic,” and to make that key change work, the restatement “usually has to be recomposed” somewhere in between. The term for that seam where the recomposition happens is literally called the “crux”, which I feel is appropriate. In music history, a common (and in stricter traditions, oftentimes mandatory) pattern for a reprise is to travel from one tonal center to another. The classic one is from a tonal center on I to a retonicization to V, by way of the V/V (my nemesis from so long ago!) and back to I. According to the literature, once you’ve gone from the I to the V, you’ve gone on a harmonic journey that leaves the melody transformed by the time you get back to I.</p>
+<p>It’s also important to note here that this is just one “map” to follow when writing in this form, and listeners of a classically Western tradition had grown accustomed to hearing this change over centuries. So much so, in fact, that by the 20th century composers were <em>fed up</em> with the way of doing things, and so they wrote music for <a href="https://youtu.be/OjqujIPZ_jk?si=h3Y0qGzH-tQgZ9lm">helicopters</a> and <a href="https://www.youtube.com/watch?v=mngBRKEw-Ws">resonant walls</a> and such. A lot of time has passed, and film composers have popularized a textural and minimal mode to harmonic changes, which has always felt right to me. When I wrote Reminisce, I kept it diatonic cause I didn’t know any better, and for the reprise, I found a new textural harmonic component made from the same idea, and that’s my transformation.</p>
+<p>So here’s the upshot: a recapitulation cannot be a repeat. The material has to be rebuilt on the way back so that it can resolve at home, and what makes the rebuilding necessary is everything that happened in the development section.</p>
+<p>Ten years of study, a degree, entrepreneurship, and a second death are a fairly eventful development section. When I sat down in 2024 I could not just quote the 2013 piece. The material had to be recomposed to come home.</p>
+<h2 id="you-can-only-recompose-material-you-still-have">You can only recompose material you still have</h2>
+<p>So, here’s where the two halves of this post meet.</p>
+<p>A recapitulation presupposes an exposition. A <em>reprise variée</em> presupposes an original still recognizable underneath. I was able to write my grandmother a reprise of my grandfather’s piece <strong>because my grandfather’s piece still existed</strong> — the recording, the score, the actual thing, thirteen years later. Thank you physical media!</p>
+<p>That is the entire argument for the infrastructure, and it’s why it has nothing to do with the music. A portability contract has no opinion about a piano. It is not a collaborator and it won’t be one. It is a floor, and the only thing it does is make a future return possible.</p>
+<p>When I first sketched out my own catalog site, <a href="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/">the note I wrote to myself</a> was not about revenue or reach. It was: <em>so that I don’t have to worry about losing music. It should all be there.</em></p>
+<h2 id="the-floor-concretely">The floor, concretely</h2>
+<p>The shape I landed on, which is what actually gave me the confidence to release:</p>
+<p><strong>One record per release, living next to the masters:</strong> Every fact about the release in one file, in git, and every upload form generated from it rather than typed. The failure this prevents is dull and expensive: a writer split typed into a distributor in March and somewhere else in June is two chances to disagree, and when they disagree, nobody tells you for a year. It carries assertions, so shares have to sum to 100 and every hash has to still match its file. One of them is a real calendar deadline — <a href="https://www.law.cornell.edu/uscode/text/17/412">17 U.S.C. §412</a> only preserves statutory damages and attorney’s fees if you register before infringement or within three months of publication, and that is exactly the sort of thing I would otherwise discover in month five.</p>
+<p><strong>Own the identifiers:</strong> The <a href="https://usisrc.org/">US ISRC Agency</a> issues a registrant prefix for a one-time fee, open to individuals, no renewal, and <a href="https://www.gs1us.org/upcs-barcodes-prefixes">GS1 US</a> sells a single barcode for thirty dollars. Codes I mint are mine before any vendor touches them. The point is to make the choice of distributor as <em>boring</em> as possible. Distrokid raises their subscription? Ditto got acquired? No worries, my work and every record travels safely with me, fully versioned.</p>
+<p><strong>One surface I generate myself:</strong> <a href="https://catalog.lufs.audio/">catalog.lufs.audio</a> is static files, on a custom player, with audio from my own CDN. Streaming is where people find things, but that doesn’t mean it has to be where things live.</p>
+<p><strong>Build the assets and save the process:</strong> The visual assets for this release come from a recipe, which is the exact same idea as the release record:</p>
+<p><img src="/images/final_reminisce-reprise_cover-light_5000%201.png" alt="Image Description"></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">process</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">capitulum</span></span>
+<span class="line"><span style="color:#85E89D">seed</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">3701</span></span>
+<span class="line"><span style="color:#85E89D">palette</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">daniel-ramirez</span><span style="color:#6A737D">  # this is the color palette I'm using for all of my websites, and I thought itd be fitting to include here too</span></span>
+<span class="line"><span style="color:#85E89D">params</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  formality</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">0.75</span></span>
+<span class="line"><span style="color:#85E89D">  whorls</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">15</span></span>
+<span class="line"><span style="color:#85E89D">  petals</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">21</span></span></code></pre>
+<p>The visual process registry holds these generators — code-controlled “looks” with seeded, reproducible output. The recipe picks a process, sets its parameters, and pins a palette. The renderer pulls the seed through the process and draws the image, and it unfolds the same way each time. Same seed, same recipe, same image. Forever!</p>
+<p>The code which draws the center:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// The golden angle: each floret's divergence from the last.</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> GOLDEN_ANGLE</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> Math.</span><span style="color:#79B8FF">PI</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">3</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">sqrt</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> r</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> c </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">sqrt</span><span style="color:#E1E4E8">(i);      </span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> a</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> GOLDEN_ANGLE</span><span style="color:#E1E4E8">;      </span></span></code></pre>
+<p>The same recipe also produced different variations for where each asset lives. The Apple Music motion is a 3840x3840 video, 17.75 seconds, the inner section counter-rotating a full turn against the piece’s tempo. The Spotify Canvas gets the same treatment at 1080x1920, but it only runs 8 seconds, which is too short for a whole rotation to fit within at a decent speed. So, instead it sways, a gentle rocking that closes its loop by construction, so it can move at whatever pace fits the music. A flag is the difference between them:</p>
+<p><video controls controlslist="nodownload" oncontextmenu="return false;"><source src="/videos/edit_final_reminisce-reprise_motion-light_apple-1x1-3840.mp4" type="video/mp4"></video></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="typescript"><code><span class="line"><span style="color:#6A737D">// spin: counter-rotation, whole turns per loop — closes by arithmetic</span></span>
+<span class="line"><span style="color:#6A737D">// sway: a sine, returns to zero at any amplitude — a short loop can move slow</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> turn</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> dir </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> (spin </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> Math.</span><span style="color:#79B8FF">PI</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> t</span></span>
+<span class="line"><span style="color:#F97583">                 +</span><span style="color:#E1E4E8"> sway </span><span style="color:#F97583">*</span><span style="color:#79B8FF"> 2</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> Math.</span><span style="color:#79B8FF">PI</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> Math.</span><span style="color:#B392F0">sin</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> Math.</span><span style="color:#79B8FF">PI</span><span style="color:#F97583"> *</span><span style="color:#E1E4E8"> t));</span></span></code></pre>
+<p><video controls controlslist="nodownload" oncontextmenu="return false;"><source src="/videos/final_reminisce-reprise_canvas-light_1080x1920.mp4" type="video/mp4"></video></p>
+<p>I had been building this tool to animate the headers on my own websites, and this was the first time I pointed it at a release. When the design and the code was right, I ran the chain and watched the assets bloom on screen. A chrysanthemum!</p>
+<h3 id="where-the-floor-still-has-holes">Where the floor still has holes</h3>
+<p>The assets were done, and I put a plan for future releases going forward. But, the system is still nowhere near finished: the playbook I just described came together recently, I’m still working out my ISRC prefix, and my own documentation even says to backport the existing releases before putting out a new one. And yet I’m shipping anyway, because it’s proof of the thesis. What I was waiting for wasn’t going to be the machine: the foundation itself is what makes all of this possible, and prior to this release I didn’t have the scope in mind for all the moving parts. What made it come together for me was knowing the shape of the thing well enough to stop letting it keep me from sharing my work. The rest is a to-do list!</p>
+<h2 id="anyway-pls-listen">Anyway, pls listen</h2>
+<p>Reminisce (Reprise) is out today, wherever you get music, and on <a href="https://catalog.lufs.audio/">my own catalog</a> which is the copy I can promise will still be there.</p>
+<p>One more thing about form, and then I’ll stop. In the Italian <em>ballata</em>, the recurring section is called the <strong>ripresa</strong>, and in the strophic version <a href="https://wmich.edu/musicgradexamprep/FormesFixesBallata.htm">the last A of one verse is also the first A of the next</a>. The same material is an ending and a beginning at the same time, depending on where you’re standing. I wrote Reminisce as a memorial for my grandparents, RIP. It turned out to be the opening for everything coming up next!</p>
+<p>listen to it for free here! (:</p>
+<iframe src="https://catalog.lufs.audio/embed/lufs-3d010fde" width="100%" height="152" frameborder="0" loading="lazy" allow="autoplay; encrypted-media" style="border:none;border-radius:14px;max-width:456px"></iframe>
+<p>More soon 🙂‍↕️</p>
+<p>P.S. I’ve also been meaning to port that 2013 album of piano solos onto the catalog, as a bonus for anyone poking around. When I do, I’ll update this post with an A/B so you can hear how both came out 🎹</p>
+<hr>
+<h4 id="sources">Sources</h4>
+<ul>
+<li>Larousse, <em>Dictionnaire de la musique</em> — <em>reprise</em> — <a href="https://www.larousse.fr/encyclopedie/musdico/reprise/169831">https://www.larousse.fr/encyclopedie/musdico/reprise/169831</a></li>
+<li>Open Music Theory, <em>Sonata Form</em> — <a href="https://viva.pressbooks.pub/openmusictheory/chapter/sonata-form/">https://viva.pressbooks.pub/openmusictheory/chapter/sonata-form/</a></li>
+<li>Western Michigan University Music Grade Exam Prep, <em>The Ballata</em> — <a href="https://wmich.edu/musicgradexamprep/FormesFixesBallata.htm">https://wmich.edu/musicgradexamprep/FormesFixesBallata.htm</a></li>
+<li>17 U.S.C. §412 — <a href="https://www.law.cornell.edu/uscode/text/17/412">https://www.law.cornell.edu/uscode/text/17/412</a></li>
+<li>US ISRC Agency — <a href="https://usisrc.org/">https://usisrc.org/</a></li>
+<li>GS1 US, barcode prefixes — <a href="https://www.gs1us.org/upcs-barcodes-prefixes">https://www.gs1us.org/upcs-barcodes-prefixes</a></li>
+<li>Karlheinz Stockhausen, <em>Helicopter String Quartet</em> (video) — <a href="https://youtu.be/OjqujIPZ_jk">https://youtu.be/OjqujIPZ_jk</a></li>
+<li>Alvin Lucier, <em>I Am Sitting in a Room</em> (video) — <a href="https://www.youtube.com/watch?v=mngBRKEw-Ws">https://www.youtube.com/watch?v=mngBRKEw-Ws</a></li>
+<li>Billboard, <em>Spotify &#x26; Amazon Bundling Cost Nearly $500M</em> — <a href="https://www.billboard.com/pro/nmpa-spotify-amazon-streaming-bundles-cost-500m-lost-value/">https://www.billboard.com/pro/nmpa-spotify-amazon-streaming-bundles-cost-500m-lost-value/</a></li>
+<li>TechCrunch, <em>Apple tells Patreon to move creators to in-app purchase</em> — <a href="https://techcrunch.com/2026/01/28/apple-tells-patreon-to-move-creators-to-in-app-purchase-for-subscriptions-by-november/">https://techcrunch.com/2026/01/28/apple-tells-patreon-to-move-creators-to-in-app-purchase-for-subscriptions-by-november/</a></li>
+<li>Billboard, <em>UMG Settles $500M Lawsuit Against Believe &#x26; TuneCore</em> — <a href="https://www.billboard.com/pro/umg-believe-settle-lawsuit-over-kendrick-knockoff-songs/">https://www.billboard.com/pro/umg-believe-settle-lawsuit-over-kendrick-knockoff-songs/</a></li>
+<li>Digital Music News, <em>Napster shuts down streaming, pivots to AI</em> — <a href="https://www.digitalmusicnews.com/2026/01/02/napster-music-streaming-shut-down-ai-pivot/">https://www.digitalmusicnews.com/2026/01/02/napster-music-streaming-shut-down-ai-pivot/</a></li>
+<li>catalog.lufs.audio — <a href="https://catalog.lufs.audio/">https://catalog.lufs.audio/</a></li>
+<li>Daniel Ramirez, <em>Process Registries, and Workchain</em> — <a href="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/">https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/</a></li>
+</ul> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/reminisce-reprise.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · reminisce-reprise.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

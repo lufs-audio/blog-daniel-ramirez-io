@@ -1,0 +1,349 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>MCPs and Merlet · Daniel Ramirez</title><meta name="description" content="In 2017 I studied with Michel Merlet, whose &#34;Genèse Dodécaphonique des Modes&#34; starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/mcps-and-merlet/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="MCPs and Merlet · Daniel Ramirez"><meta property="og:description" content="In 2017 I studied with Michel Merlet, whose &#34;Genèse Dodécaphonique des Modes&#34; starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/mcps-and-merlet/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2025-05-16T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="composition"><meta property="article:tag" content="music-theory"><meta property="article:tag" content="mcp"><meta property="article:tag" content="modes"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="MCPs and Merlet · Daniel Ramirez"><meta name="twitter:description" content="In 2017 I studied with Michel Merlet, whose &#34;Genèse Dodécaphonique des Modes&#34; starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"MCPs and Merlet","description":"In 2017 I studied with Michel Merlet, whose \"Genèse Dodécaphonique des Modes\" starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it.","datePublished":"2025-05-16T00:00:00.000Z","dateModified":"2025-05-16T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/mcps-and-merlet/"},"url":"https://blog.daniel-ramirez.io/posts/mcps-and-merlet/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"composition, music-theory, mcp, modes"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="standard"> <header class="post__header reveal">  <h1 class="post__title">MCPs and Merlet</h1> <time class="post__date" datetime="2025-05-16">May 16, 2025</time>     </header>    <div class="prose reveal"> <p>In 2017, I was a student of French composer <a href="https://en.wikipedia.org/wiki/Michel_Merlet">Michel Merlet</a>, and he introduced me to his theoretical framework called “Genèse Dodécaphonique des Modes” – a systematic approach to understanding modal structures within the twelve-tone system. This framework has profoundly influenced my approach to composition and sound design over the years.</p>
+<p>I’ve been thinking about Merlet recently, and how musical frameworks like his create a stable foundation for tonal exploration. “Shoulders of giants” and all that. I was trying to see if I could come up with a way to codify this foundation in a tool that I can mess around with and prod a bit — I love the determinism of this system, but I wanted a way to visualize it a bit better, and maybe even bounce ideas off of it.</p>
+<p>That’s when I learned about MCPs, which I’ll get back to in a sec..</p>
+<h2 id="merlets-system">Merlet’s System</h2>
+<p>The “Genèse Dodécaphonique des Modes” (Dodecaphonic Genesis of Modes) is Michel Merlet’s systematic approach to deriving, categorizing, and understanding various modal structures within the twelve-tone musical system. Unlike conventional classifications, Merlet’s system organizes modes based on their mathematical properties, symmetrical characteristics, and historical usage. My favorite part is how it recontextualizes tonal music away from the traditional Greek modes, it takes a step further back and begins with a simple notion — “let’s start with the octave, and keep splitting.” <sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>
+<p>The system was first illustrated to me in the diagram below — visually represented as a clock-like circular diagram. At 12 o’ clock, we take the octave and split it into 12 — our chromatic scale. At 1 we split once, to get C and F# — tritones, and an equally split octave. Each mode is color-coded in pairs, creating a visual map of tonal relationships. For every mode created this way, there is its “complement” mode mirrored and colored accordingly across the diagram.</p>
+<p>Check out Merlet’s diagram below:</p>
+<p><img src="/images/MusicChart_120120v2.jpg" alt="Image Description">
+<em>Shoutout to <a href="https://ashsuh.com/">Ash Suh</a> for making this copy for me, a while back!</em></p>
+<p>The modes are numbered from 0 to 12:</p>
+<p><strong>Mode 0: Chromatic (12-12=0)</strong><br>
+The complete chromatic scale using all twelve tones. It has no complementary structure (“absence de complémentarité”) and is historically exemplified in Schoenberg’s “Valse, Cinq pièces opus 23” (1923).</p>
+<p><strong>Mode 0: Chromatic (12-12=0)</strong><br>
+The complete chromatic scale using all twelve tones. It has no complementary structure (“absence de complémentarité”) and is historically exemplified in Schoenberg’s “Valse, Cinq pièces opus 23” (1923).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=2lFZf69B2gQ">Listen: Schoenberg – Fünf Klavierstücke Op. 23, No. 5 “Walzer” (Pina Napolitano, piano)</a></li>
+<li><a href="https://www.youtube.com/watch?v=XoyJFHtQiBU">Alternate: Full set performed by Eduard Steuermann</a></li>
+</ul>
+<p><strong>Mode 1: Tritone</strong><br>
+Based on the tritone interval (6 semitones), creating an “antipodal” symmetry that divides the octave precisely in half. Historically referenced in Ballif’s “À cor et à cri” (1962).</p>
+<ul>
+<li><a href="https://www.discogs.com/release/25363444-Claude-Ballif-Untitled">Listen: Claude Ballif – À cor et à cri (Orchestre National, cond. Lucas Vis)</a></li>
+</ul>
+<p><strong>Mode 2: 8÷2=5 (Diminished)</strong><br>
+Created with consistent 2-semitone intervals, producing a symmetrical diminished structure. Exemplified in Messiaen’s “4e partie de l’Ascension” (1933).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=SG_zYdWBm4o">Listen: Messiaen – L’Ascension: IV. “Prière du Christ montant vers son Père” (London Symphony Orchestra, cond. Myung-Whun Chung)</a></li>
+</ul>
+<p><strong>Mode 3: 8÷3=8/3 (Augmented)</strong><br>
+Based on consistent 4-semitone intervals (major thirds), creating a perfectly symmetrical augmented structure. Found in Messiaen’s “Thème et variations” (1932).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=VLWtEETh04o">Listen: Messiaen – Thème et variations (Daniel Kurganov, violin &#x26; Constantine Finehouse, piano)</a></li>
+<li><a href="https://www.youtube.com/watch?v=eGMQ_t9PFXE">Alternate: Alexi Kenney, violin &#x26; Victor Asuncion, piano</a></li>
+</ul>
+<p><strong>Mode 4: 8÷4=7</strong><br>
+A symmetrical mode built on 3-semitone jumps, as used in Stravinsky’s “Symphonie des psaumes” (1930).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=DOEr5Qbdgmo">Listen: Stravinsky – Symphonie de Psaumes (Orchestra e Coro del Teatro La Fenice, cond. Riccardo Muti)</a></li>
+<li><a href="https://www.youtube.com/watch?v=AEx9NxFJ09Y">Alternate: Radio Philharmonic Orchestra &#x26; Netherlands Radio Choir, cond. Peter Dijkstra</a></li>
+</ul>
+<p><strong>Mode 5: Pentatonic</strong><br>
+The asymmetrical five-note scale, historically referenced in Fauré’s “Fantaisie pour piano et orchestre” (1919).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=GHNSk77TUHU">Listen: Fauré – Fantaisie for Piano and Orchestra, Op. 111 (Alicia de Larrocha, London Philharmonic Orchestra, cond. Rafael Frühbeck de Burgos)</a></li>
+<li><a href="https://www.youtube.com/watch?v=jqL8dbD2kb8">Alternate: Grant Johannesen, piano &#x26; London Symphony Orchestra, cond. Sir Eugene Goossens</a></li>
+</ul>
+<p><strong>Mode 6: Par tons (Whole Tone)</strong><br>
+Composed of consistent whole-tone intervals (2 semitones), creating perfect symmetry. Exemplified in Debussy’s “Voiles” from his first book of Preludes (1910).</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=UUygwCxUjMQ">Listen: Debussy – Voiles (Daniel Barenboim, piano)</a></li>
+<li><a href="https://www.youtube.com/watch?v=535hjwrgf40">Alternate: Orchestral arrangement by Royal Scottish National Orchestra, cond. Jun Märkl</a></li>
+</ul>
+<p><strong>Mode 7: Diatonic</strong><br>
+The traditional seven-note scale (like major and minor scales) with its characteristic asymmetrical pattern of whole and half steps. Referenced in Ravel’s “La Laideronnette”.</p>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=N_ENSdLOblk&#x26;t=363s">Listen: Ravel – La Laideronnette</a></li>
+</ul>
+<p>The diagram also shows modes 8-12, which complement modes 4-0 respectively, creating a symmetrical relationship within the system.</p>
+<p>What makes Merlet’s system particularly valuable is how it connects mathematical properties with historical compositions, demonstrating that these structures aren’t merely theoretical but have been intuitively discovered and employed by composers throughout the 20th century.</p>
+<h2 id="model-context-protocols">Model Context Protocols</h2>
+<p>Large Language Models have evolved beyond simple text generation into powerful assistants that can extend their capabilities through <a href="https://docs.openwebui.com/features/plugin/">tools</a> - specialized programs that perform specific functions when called by the LLM. These tools enable LLMs to perform calculations, retrieve information, or generate specialized content outside their training parameters.</p>
+<p><a href="https://www.anthropic.com/news/model-context-protocol">Model Context Protocol (MCP)</a> servers are quickly becoming adopted as the next evolution within this ecosystem — standardized ways for LLMs to interact with external tools, data sources, and computation engines. Unlike one-off custom tools, MCPs provide a framework for developers to create consistent, reusable interfaces between models and external systems.</p>
+<p>What excites me about MCPs is their potential to create conversational interfaces to specialized domains like music theory and sound design. Rather than building rigid user interfaces with predetermined parameters — like a plugin — MCPs allow natural language to serve as the interface to complex systems. You can ask the system to explore theoretical concepts, and it will do the computational heavy lifting behind the scenes.</p>
+<p>For creative fields like sound design and music composition, this approach holds particular promise. Musical concepts often exist in a space between abstract theory and concrete implementation — a gap that has traditionally required significant mental translation work. MCPs can bridge this gap by allowing LLMs to reason about musical structures while connecting to the tools in the background.</p>
+<p>In essence, MCPs create a collaborative environment where your understanding of music theory, augmented by an LLM’s broader knowledge, can directly inform technical implementation without requiring you to manually translate between these domains. You can focus on creative exploration while the system handles the technical execution.</p>
+<h2 id="case-study-shoulders-of-giants">Case Study: Shoulders of Giants</h2>
+<p>With this in mind, I decided to create a practical example — a custom tool that generates Merlet modes for any given root note. This Python-based tool would encapsulate the theoretical framework while making it immediately applicable to compositional work.</p>
+<p>The implementation process itself was enlightening. Translating Merlet’s visual diagram into code required me to formalize aspects of the system that I had previously internalized more intuitively. I needed to define precise data structures for the modes, their symmetry types, and historical references:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#F97583">from</span><span style="color:#E1E4E8"> enum </span><span style="color:#F97583">import</span><span style="color:#E1E4E8"> Enum</span></span>
+<span class="line"><span style="color:#F97583">from</span><span style="color:#E1E4E8"> dataclasses </span><span style="color:#F97583">import</span><span style="color:#E1E4E8"> dataclass</span></span>
+<span class="line"><span style="color:#F97583">from</span><span style="color:#E1E4E8"> typing </span><span style="color:#F97583">import</span><span style="color:#E1E4E8"> List, Optional</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> SymmetryType</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">Enum</span><span style="color:#E1E4E8">):</span></span>
+<span class="line"><span style="color:#79B8FF">    SYMMETRIC</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "symmetric"</span></span>
+<span class="line"><span style="color:#79B8FF">    ASYMMETRIC</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "asymmetric"</span></span>
+<span class="line"><span style="color:#79B8FF">    ANTIPODAL</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "antipodal"</span></span>
+<span class="line"><span style="color:#79B8FF">    NONE</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> "absence de complémentarité"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">@dataclass</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> HistoricalReference</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    composer: </span><span style="color:#79B8FF">str</span></span>
+<span class="line"><span style="color:#E1E4E8">    work: </span><span style="color:#79B8FF">str</span></span>
+<span class="line"><span style="color:#E1E4E8">    year: </span><span style="color:#79B8FF">int</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">@dataclass</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Mode</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    number: </span><span style="color:#79B8FF">int</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#79B8FF">str</span></span>
+<span class="line"><span style="color:#E1E4E8">    intervals: List[</span><span style="color:#79B8FF">int</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    symmetry_type: SymmetryType</span></span>
+<span class="line"><span style="color:#E1E4E8">    historical_ref: Optional[HistoricalReference] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> None</span></span></code></pre>
+<p>With these structures in place, I could then implement the core algorithm that generates each mode based on its defining interval pattern:</p>
+<p>I integrated this tool with OpenWebUI, allowing me to interact with it through natural language. For example, I prompt:</p>
+<blockquote>
+<p>“Generate the Merlet table in markdown format with root note C”</p>
+</blockquote>
+<p>And receive a comprehensive table showing each mode, its symmetry properties, scale notes, complementary notes, and historical reference:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Mode</th><th>Symmetry</th><th>Primary Scale</th><th>Complementary Scale</th><th>Historical Reference</th></tr></thead><tbody><tr><td>Mode 0: 12-12=0 Chromatic</td><td>absence de complémentarité</td><td>C Db D Eb E F Gb G Ab A Bb B</td><td></td><td>Schönberg - Valse, Cinq pièces opus 23 (1923)</td></tr><tr><td>Mode 1: Triton</td><td>antipodal</td><td>C Gb</td><td>Db D Eb E F G Ab A Bb B</td><td>Ballif - À cor et à cri (1962)</td></tr><tr><td>Mode 2: 8÷2-5</td><td>symmetric</td><td>C D E Gb</td><td>Db Eb F G Ab A Bb B</td><td>Messiaen - 4e partie de l’Ascension (1933)</td></tr><tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table>
+<h2 id="applications">Applications</h2>
+<p>The use case for sound design goes beyond just academic interest. By encoding Merlet’s theoretical framework into an accessible tool, we open up several practical applications:</p>
+<h3 id="1-compositional-frameworks">1. Compositional Frameworks</h3>
+<p>Using these modal structures as starting points for compositions ensures coherence while exploring beyond conventional tonality. Each mode has its distinct emotional character and historical context, providing creative direction.</p>
+<h3 id="2-sound-design-parameters">2. Sound Design Parameters</h3>
+<p>The symmetrical properties of these modes can inform synthesizer parameter settings. For example:</p>
+<ul>
+<li>Using Mode 3’s augmented structure to create equidistant filter modulations</li>
+<li>Applying Mode 4’s symmetrical intervals to FM synthesis ratios</li>
+<li>Mapping Mode 6’s whole-tone structure to granular density parameters</li>
+</ul>
+<p><img src="/images/Screenshot%202025-05-16%20at%203.39.00%20PM.png" alt="Image Description"></p>
+<h3 id="3-generative-audio-systems">3. Generative Audio Systems</h3>
+<p>Algorithmic composition systems can leverage these well-defined modal structures as rule sets, particularly in adaptive game audio where tonal consistency must be maintained across procedurally generated content.</p>
+<h3 id="4-timbral-exploration">4. Timbral Exploration</h3>
+<p>The complementary structure of Merlet’s system (where each mode has its complement) provides a framework for designing contrasting but related timbres—useful for creating coherent soundscapes with internal variation.</p>
+<h2 id="mcp-integration-for-audio-applications">MCP Integration for Audio Applications</h2>
+<p>While my current implementation works as a standalone tool in OpenWebUI, the real potential lies in developing dedicated Model Context Protocol servers for audio manipulation. Here’s how this could evolve:</p>
+<h3 id="audio-specific-mcp-servers">Audio-Specific MCP Servers</h3>
+<p>Audio-focused MCP servers could provide LLMs with direct control over:</p>
+<ol>
+<li><strong>Scale-Based Synthesis</strong> - Generate patterns based on modal characteristics</li>
+<li><strong>Real-time Audio Analysis</strong> - Analyze recorded audio for its modal content</li>
+<li><strong>DAW Integration</strong> - Send MIDI data or control parameters directly to digital audio workstations</li>
+<li><strong>Sample Retrieval and Manipulation</strong> - Find and transform audio samples to match specific modal characteristics</li>
+</ol>
+<p>The key is that MCP just provides an interface with the rest of your code. So you can leave the probabilistic nature of LLMs to your conversation, and rely on steady code for the heavy lifting.</p>
+<h3 id="example-interaction">Example Interaction</h3>
+<p>Imagine prompting an LLM with:</p>
+<blockquote>
+<p>“Create an evolving pad sound based on Merlet’s Mode 3 with increasing tension over 16 bars, export as MIDI and send CC parameter automation to my instance of Serum2”</p>
+</blockquote>
+<p>The MCP server would:</p>
+<ol>
+<li>Generate the Mode 3 scale structure (C E Ab)</li>
+<li>Create MIDI patterns emphasizing these notes</li>
+<li>Design synthesis parameters that accentuate the equidistant nature of the augmented scale</li>
+<li>Program automation curves that increase complexity over time</li>
+<li>Export directly to your DAW or synth
+<ul>
+<li>see my previous post about <a href="https://danialrami.com/posts/lua-in-reaper/">scripting in REAPER</a></li>
+</ul>
+</li>
+</ol>
+<p>This level of integration would influence how we approach sound design, bridging the gap between theoretical concepts and practical implementation.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>The marriage of specialized musical knowledge with the emerging capabilities of LLMs and Model Context Protocols could represent a new interface for audio folks. By building tools that encapsulate theoretical frameworks like Merlet’s modal system, we can make complex musical concepts immediately applicable to our creative workflows.</p>
+<p>As we continue to develop these integrations, I hope that the boundary between conceptual thinking and implementation will become increasingly fluid. Sound designers should be able to move seamlessly between high-level musical ideas and their concrete realizations. I’ll be diving into this more going forward 🫡</p>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p>Notice I didn’t say split <strong>evenly</strong> — while this system does work whether using just intonation/equal temperament/something else, it was described to me in the context of Western tradition, so the rest of this post will follow suit. But, at the end of the day its splitting octaves, so if you want to keep going past 12, go for it! You’ll end up with some pretty cool effects 🤝 <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/mcps-and-merlet.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · mcps-and-merlet.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

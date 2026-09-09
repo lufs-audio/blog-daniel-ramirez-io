@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lua in REAPER · Daniel Ramirez</title><meta name="description" content="A monome norns got me reading Lua, and REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work, and the cognitive tax of switching DAWs."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/lua-in-reaper/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="Lua in REAPER · Daniel Ramirez"><meta property="og:description" content="A monome norns got me reading Lua, and REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work, and the cognitive tax of switching DAWs."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/lua-in-reaper/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2025-04-11T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="reaper"><meta property="article:tag" content="lua"><meta property="article:tag" content="scripting"><meta property="article:tag" content="workflow"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Lua in REAPER · Daniel Ramirez"><meta name="twitter:description" content="A monome norns got me reading Lua, and REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work, and the cognitive tax of switching DAWs."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Lua in REAPER","description":"A monome norns got me reading Lua, and REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work, and the cognitive tax of switching DAWs.","datePublished":"2025-04-11T00:00:00.000Z","dateModified":"2025-04-11T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/lua-in-reaper/"},"url":"https://blog.daniel-ramirez.io/posts/lua-in-reaper/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"reaper, lua, scripting, workflow"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="standard"> <header class="post__header reveal">  <h1 class="post__title">Lua in REAPER</h1> <time class="post__date" datetime="2025-04-11">April 11, 2025</time>     </header>    <div class="prose reveal"> <p>I first got introduced to Lua a few years ago while messing around with a <a href="https://llllllll.co/c/library/18">monome norns</a>. At the time, I was just downloading Lua scripts that others had made, but I found myself really interested in reading through the code and inspired by how accessible the norns was as a platform for creating new instruments and effects. The simplicity of the language combined with its power to transform hardware into entirely new sonic tools fascinated me, even though I wasn’t writing my own scripts yet.</p>
+<p><img src="/images/IMG_3563.jpeg" alt="Image Description"></p>
+<p>For years, Logic has been my go-to for general sound design work, but when it comes to certain media, like gaming, REAPER has some of the best functionality and extensibility. Scripting in REAPER with Lua has transformed the way I think about the day to day process when working with audio.</p>
+<h2 id="multi-daw">Multi-DAW</h2>
+<p>In general I feel like most DAWs can do basically everything at this point. There are some that have better video compatibility, or rendering options, etc, but in general it’s clear that different industries use different DAWs often because of the history and culture in those fields rather than just the specific functionality. Switching between DAWs can help immensely with collaboration, but often feels like you’re relearning the same concepts wrapped in different interfaces and workflows. Each DAW has its own quirks, keyboard shortcuts, and ways of organizing projects. The cognitive load of switching between them can slow you down significantly when you’re in the middle of a creative process. For game audio specifically, there’s the addition of middleware and game engines — each time a new context switch.</p>
+<h2 id="lua-scripting-in-reaper">Lua Scripting in REAPER</h2>
+<p>What makes REAPER stand out for game audio work, besides its tight integration with tools like FMOD, is its extensive scripting capabilities. While many DAWs offer some form of macro configuration, REAPER’s implementation of Lua scripting is particularly powerful and accessible. It allows you to automate repetitive tasks, create custom tools, bridge with other platforms, and essentially reshape the DAW to match your ideal workflow rather than adapting to someone else’s vision of how you should work.</p>
+<p>The beauty of Lua is its simplicity and readability. I’m not an experienced programmer, but the learning curve is manageable, and the results are immediately impactful to my daily work.</p>
+<h2 id="creating-an-orchestral-template-in-lua">Creating an Orchestral Template in Lua</h2>
+<p>As a proof of concept, I recently challenged myself to recreate my Logic orchestral template in REAPER using Lua. This template had evolved over several years in Logic, representing small optimizations and workflow improvements.</p>
+<p><a href="https://github.com/danialrami/reaper-scripts/blob/main/v0_template.lua">I wrote a Lua script</a> that builds the entire template from scratch. In less than a day, I had a working script that:</p>
+<ul>
+<li>Creates a structured folder hierarchy for different instrument groups (Strings, Brass, Woodwinds, etc.)</li>
+<li>Sets up submixes and routing for each section</li>
+<li>Configures stem outputs for easier delivery to middleware</li>
+<li>Adds utility tracks like reference audio and pink noise</li>
+<li>Applies appropriate color coding for visual organization</li>
+<li>Configures metronome routing and project settings</li>
+</ul>
+<p>The script executes in seconds, creating a project structure that would take hours to set up manually the first time, and additional time to tune to a specific project. More importantly, it’s consistent every time - no forgetting a send or misconfiguring a track.</p>
+<h2 id="lua-for-audio-workflows">Lua for Audio Workflows</h2>
+<p>Lua offers several unique advantages for my work, and potentially in other audio fields more generally:</p>
+<ol>
+<li>
+<p><strong>Reproducibility</strong>: Every project can start from an identical template, ensuring consistency across your work.</p>
+</li>
+<li>
+<p><strong>Version Control</strong>: Unlike DAW templates that are essentially black boxes, script-based templates can be versioned, commented, and iteratively improved. You can track changes over time and even branch off specialized templates for different types of projects.</p>
+</li>
+<li>
+<p><strong>Flexibility</strong>: Need to make a change to your template structure? Just update the script once rather than manually adjusting dozens of existing projects.</p>
+</li>
+<li>
+<p><strong>Knowledge Sharing</strong>: Scripts are easier to share and explain to collaborators than trying to walk someone through a complex DAW template verbally.</p>
+</li>
+<li>
+<p><strong>Cross-Platform Compatibility</strong>: Scripts work across all platforms, making collaboration smoother.</p>
+</li>
+</ol>
+<h2 id="extending-beyond-templates">Extending Beyond Templates</h2>
+<p>While creating my template was my first custom lua script for reaper, the potential applications for scripting new workflows are pretty well documented. The classic ones I’ve known of include:</p>
+<ul>
+<li>Batch processing audio assets for game implementation</li>
+<li>Creating custom audio analysis tools specific to game requirements</li>
+<li>Automating the export process to middleware like Wwise or FMOD</li>
+<li>Building specialized editing interfaces for dialogue, foley, or ambience work</li>
+<li>Handling repetitive and tedious metadata tasks</li>
+</ul>
+<h2 id="version-control-and-documentation">Version Control and Documentation</h2>
+<p>One aspect of scripting that I’ve found particularly valuable is the ability to use proper version control. Hopefully one day version control systems can exist for designers with the same ubiquity as they do for devs. Or maybe they already do!</p>
+<p>For personal organization, I also keep a consolidated folder of scripts in Obsidian, with notes about how and when to use each one. This text-based approach integrates really well with my existing day to day work and makes everything searchable.</p>
+<h2 id="next-steps">Next Steps</h2>
+<p>My current exploration is focused on building more integrated workflows between REAPER and Wwise through their respective APIs. The goal is to create a more seamless pipeline from sound creation to game implementation, reducing the friction that typically exists between these environments.</p>
+<p>Currently working on scripts that:</p>
+<ul>
+<li>Tag regions in REAPER and have them automatically create corresponding events in Wwise</li>
+<li>Configure parameters in REAPER and have them reflected in Wwise’s RTPCs</li>
+<li>Test game audio behaviors directly from within your DAW environment</li>
+</ul>
+<h2 id="assists-from-continuedev">Assists from continue.dev</h2>
+<p>Another approach that has significantly accelerated my Lua development is using AI-assisted coding tools. I’ll open my .lua files (or .scd files for SuperCollider, or even .maxpatch files) in VSCodium with <a href="https://www.continue.dev/">continue.dev</a> connected to my openwebui or ollama instance. This setup acts as a real-time coding assistant that checks my code for correctness and provides suggestions for refining existing features or adding new ones I hadn’t considered.</p>
+<p>This approach has been particularly helpful when starting a new script. Like “draft the high level organization for a krell patch in supercollider”. It’s awesome to just be able to focus on creative implementation rather than boilerplate setup.</p>
+<h2 id="give-it-a-go">Give it a go</h2>
+<p>I’ll be sharing more of my scripts on <a href="https://github.com/danialrami/reaper-scripts">GitHub</a> in the future. What started as curiosity about Lua scripts on the monome norns has evolved into an essential part of the way I think about audio design – one that continues to open new possibilities for creating and implementing audio efficiently and creatively.</p> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/lua-in-reaper.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · lua-in-reaper.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

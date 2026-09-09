@@ -1,0 +1,324 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Resources · Daniel Ramirez</title><meta name="description" content="Sound &#38; Systems"><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/resources/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="website"><meta property="og:title" content="Resources · Daniel Ramirez"><meta property="og:description" content="Sound &#38; Systems"><meta property="og:url" content="https://blog.daniel-ramirez.io/resources/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Resources · Daniel Ramirez"><meta name="twitter:description" content="Sound &#38; Systems"><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Daniel Ramirez","description":"Sound & Systems","url":"https://blog.daniel-ramirez.io/","inLanguage":"en-US","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"}}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <header class="masthead reveal"> <canvas class="swarm swarm--band masthead__viz" data-swarm data-process="membrane" data-variant="band" data-seed="4021" aria-hidden="true"></canvas> <script>
+  (function () {
+    /* Bind to the canvas immediately before this script — instance-safe, so two
+       swarms can share a page without either grabbing the other's element. */
+    var self = document.currentScript;
+    var cv = self && self.previousElementSibling;
+    if (!cv || cv.tagName !== 'CANVAS') cv = document.querySelector('canvas[data-swarm]');
+    if (!cv || cv.dataset.swarmOn) return;
+    cv.dataset.swarmOn = '1';
+
+    var ctx = cv.getContext('2d'); if (!ctx) return;
+    var root = document.documentElement;
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var mode = cv.getAttribute('data-process') === 'chain' ? 'chain' : 'membrane';
+    var field = cv.getAttribute('data-variant') === 'field';
+    var seed = parseInt(cv.getAttribute('data-seed'), 10) || 4021;
+
+    /* process constants */
+    var NT = 4;                          // four types: gold leads, three seasonings
+    var WEIGHT = [0.4, 0.2, 0.2, 0.2];   // single-accent discipline, as a population
+    var beta = 0.3, rMax = 0.26, tHalf = 0.045, force = 5.2, dt = 1 / 60;
+
+    var DPR = 1, W = 1, H = 1, U = 1, EX = 2.4, EY = 1;
+    var px, py, vx, vy, tp, M, COUNT = 0;
+    var running = true, over = false, eng = 0;
+    var PAL = ['#d9a23d', '#e0836a', '#9fc1d0', '#a9a77f'];
+    var GX = 3, GY = 3, OX = [-1, 0, 1], OY = [-1, 0, 1], cellHead = null, cellNext = null;
+
+    function mulberry32(a) {
+      return function () {
+        a |= 0; a = (a + 0x6d2b79f5) | 0;
+        var t = Math.imul(a ^ (a >>> 15), 1 | a);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function palette() {
+      var cs = getComputedStyle(root), out = [];
+      for (var i = 1; i <= NT; i++) {
+        var v = (cs.getPropertyValue('--viz-' + i) || '').trim();
+        out.push(v || PAL[i - 1]);
+      }
+      PAL = out;
+    }
+
+    function size() {
+      DPR = Math.min(window.devicePixelRatio || 1, 2);
+      var r = cv.getBoundingClientRect();
+      var w = Math.max(1, r.width), h = Math.max(1, r.height);
+      cv.width = Math.round(w * DPR); cv.height = Math.round(h * DPR);
+      W = cv.width; H = cv.height; U = Math.min(W, H);
+      var pEX = EX, pEY = EY, s = Math.min(w, h);
+      EX = w / s; EY = h / s;
+      GX = Math.max(1, Math.floor(EX / rMax));
+      GY = Math.max(1, Math.floor(EY / rMax));
+      /* With fewer than three cells on an axis the ±1 sweep would visit the same
+         cell twice and double-count the force — one pass covers the axis. */
+      OX = GX < 3 ? [0] : [-1, 0, 1];
+      OY = GY < 3 ? [0] : [-1, 0, 1];
+      cellHead = new Int32Array(GX * GY);
+      // keep the structure across a resize: stretch the domain, don't reseed
+      if (px && (Math.abs(EX - pEX) > 0.01 || Math.abs(EY - pEY) > 0.01)) {
+        var kx = EX / pEX, ky = EY / pEY;
+        for (var i = 0; i < COUNT; i++) {
+          px[i] *= kx; if (px[i] >= EX) px[i] -= EX * Math.floor(px[i] / EX);
+          py[i] *= ky; if (py[i] >= EY) py[i] -= EY * Math.floor(py[i] / EY);
+        }
+      }
+    }
+
+    function reset() {
+      var r = mulberry32(seed), i;
+      M = new Float32Array(NT * NT);
+      var a, b;
+      if (mode === 'chain') {
+        for (a = 0; a < NT; a++) for (b = 0; b < NT; b++) {
+          M[a * NT + b] = b === (a + 1) % NT ? 0.9 : a === b ? 0.32 : -0.18 + (r() * 0.14 - 0.07);
+        }
+      } else {
+        for (a = 0; a < NT; a++) for (b = 0; b < NT; b++) {
+          M[a * NT + b] = a === b ? 0.95 : -0.62 + r() * 0.5;
+        }
+      }
+      var narrow = W / DPR < 820, area = EX * EY;
+      /* Population is per unit AREA, so density reads the same at any shape.
+         The field runs thinner than the band on purpose — it is a ground, not
+         a subject, and it has prose sitting on top of it. */
+      var dens = field ? 190 : (narrow ? 165 : 200);
+      var cap = field ? 460 : (narrow ? 340 : 800);
+      var min = field ? 150 : 165;
+      COUNT = Math.max(min, Math.min(cap, Math.round(area * dens)));
+      px = new Float32Array(COUNT); py = new Float32Array(COUNT);
+      vx = new Float32Array(COUNT); vy = new Float32Array(COUNT);
+      tp = new Uint8Array(COUNT); cellNext = new Int32Array(COUNT);
+      var cum = [], acc = 0, k;
+      for (i = 0; i < NT; i++) { acc += WEIGHT[i]; cum.push(acc); }
+      for (i = 0; i < COUNT; i++) {
+        px[i] = r() * EX; py[i] = r() * EY;
+        vx[i] = 0; vy[i] = 0;
+        var u = r() * acc; k = 0; while (k < NT - 1 && u > cum[k]) k++;
+        tp[i] = k;
+      }
+    }
+
+    function fRule(r, a) {
+      if (r < beta) return r / beta - 1;
+      if (r < 1) return a * (1 - Math.abs(2 * r - 1 - beta) / (1 - beta));
+      return 0;
+    }
+
+    /* pure: reads state, writes state, draws nothing */
+    function step() {
+      cellHead.fill(-1);
+      var i, cw = EX / GX, ch = EY / GY;
+      for (i = 0; i < COUNT; i++) {
+        var gx = Math.min(GX - 1, (px[i] / cw) | 0), gy = Math.min(GY - 1, (py[i] / ch) | 0);
+        var c = gy * GX + gx; cellNext[i] = cellHead[c]; cellHead[c] = i;
+      }
+      var mu = Math.pow(0.5, dt / tHalf), halfX = EX / 2, halfY = EY / 2;
+      for (i = 0; i < COUNT; i++) {
+        var fx = 0, fy = 0;
+        var gx2 = Math.min(GX - 1, (px[i] / cw) | 0), gy2 = Math.min(GY - 1, (py[i] / ch) | 0);
+        for (var oyi = 0; oyi < OY.length; oyi++) {
+          for (var oxi = 0; oxi < OX.length; oxi++) {
+            var cgx = (gx2 + OX[oxi] + GX) % GX, cgy = (gy2 + OY[oyi] + GY) % GY;
+            for (var j = cellHead[cgy * GX + cgx]; j !== -1; j = cellNext[j]) {
+              if (j === i) continue;
+              var dx = px[j] - px[i]; if (dx > halfX) dx -= EX; else if (dx < -halfX) dx += EX;
+              var dy = py[j] - py[i]; if (dy > halfY) dy -= EY; else if (dy < -halfY) dy += EY;
+              var d = Math.sqrt(dx * dx + dy * dy);
+              if (d <= 0 || d >= rMax) continue;
+              var f = fRule(d / rMax, M[tp[i] * NT + tp[j]]);
+              fx += (dx / d) * f; fy += (dy / d) * f;
+            }
+          }
+        }
+        vx[i] = vx[i] * mu + fx * rMax * force * dt;
+        vy[i] = vy[i] * mu + fy * rMax * force * dt;
+      }
+      for (i = 0; i < COUNT; i++) {
+        px[i] += vx[i] * dt; py[i] += vy[i] * dt;
+        if (px[i] < 0) px[i] += EX; else if (px[i] >= EX) px[i] -= EX;
+        if (py[i] < 0) py[i] += EY; else if (py[i] >= EY) py[i] -= EY;
+      }
+    }
+
+    /* read-only. `chain` gets a short velocity streak so the pursuit reads as
+       direction; `membrane` gets a larger dot so the cell walls read as surfaces. */
+    function draw() {
+      var chain = mode === 'chain';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+      /* The band sizes its dot to the band, so the cell walls read as surfaces.
+         The field wants one constant physical dot at any screen size — a texture,
+         not a subject — so it is stated in CSS pixels and scaled by DPR. */
+      var rad = field
+        ? 1.9 * DPR
+        : Math.max(1.1 * DPR, U / (chain ? 200 : 155)) * (1 + eng * 0.3);
+      var trail = chain && !field ? dt * 10 : 0, maxLen = rad * 9;
+      for (var t = 0; t < NT; t++) {
+        ctx.fillStyle = PAL[t];
+        ctx.strokeStyle = PAL[t];
+        if (trail) {
+          ctx.globalAlpha = 0.16 + eng * 0.14;
+          ctx.lineWidth = Math.max(1, rad * 0.7);
+          ctx.lineCap = 'round';
+          ctx.beginPath();
+          for (var j = 0; j < COUNT; j++) {
+            if (tp[j] !== t) continue;
+            var sx = px[j] * U, sy = py[j] * U;
+            var dxs = -vx[j] * U * trail, dys = -vy[j] * U * trail;
+            var len = Math.sqrt(dxs * dxs + dys * dys);
+            if (len < 0.4) continue;
+            if (len > maxLen) { var k2 = maxLen / len; dxs *= k2; dys *= k2; }
+            ctx.moveTo(sx, sy); ctx.lineTo(sx + dxs, sy + dys);
+          }
+          ctx.stroke();
+        }
+        ctx.globalAlpha = (chain ? 0.68 : 0.76) + eng * 0.24;
+        ctx.beginPath();
+        for (var i = 0; i < COUNT; i++) {
+          if (tp[i] !== t) continue;
+          var x = px[i] * U, y = py[i] * U;
+          ctx.moveTo(x + rad, y);
+          ctx.arc(x, y, rad, 0, 6.2832);
+        }
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function warm(n) { for (var i = 0; i < n; i++) step(); }
+
+    /* BOOT GATE. This script sits immediately after its own canvas, so at parse
+       time the band's content box does not exist yet and the canvas measures ~0
+       tall — seeding off that gives a one-pixel backing store stretched over the
+       real band, i.e. vertical stripes. Wait for a real box (and re-measure when
+       it changes: the webfonts land after first paint, and mobile URL bars
+       resize the viewport under a fixed field). */
+    var booted = false, rt;
+    function boot() {
+      if (booted) return;
+      var r = cv.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) return;
+      booted = true;
+      try {
+        palette(); size(); reset();
+        if (reduce) { warm(260); draw(); }
+        else {
+          warm(220);
+          (function loop() {
+            if (running) { eng += ((over ? 1 : 0) - eng) * 0.07; step(); draw(); }
+            requestAnimationFrame(loop);
+          })();
+        }
+      } catch (e) { booted = false; }
+    }
+    function onBox() {
+      if (!booted) { boot(); return; }
+      clearTimeout(rt);
+      rt = setTimeout(function () { try { size(); if (reduce) draw(); } catch (e) {} }, 180);
+    }
+
+    try { new ResizeObserver(onBox).observe(cv); } catch (e) {}
+    window.addEventListener('resize', onBox);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+    setTimeout(boot, 400); // belt and braces: never leave the band blank
+
+    try {
+      new IntersectionObserver(function (es) { running = es[0].isIntersecting; }, { threshold: 0.01 }).observe(cv);
+    } catch (e) {}
+
+    try {
+      new MutationObserver(function () { palette(); if (reduce) draw(); })
+        .observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    } catch (e) {}
+
+    if (!field) {
+      cv.addEventListener('pointerenter', function () { over = true; });
+      cv.addEventListener('pointerleave', function () { over = false; });
+    }
+  })();
+</script> <div class="masthead__veil"></div> <div class="masthead__inner"> <a class="meta-live" id="metaLive" href="https://time.lufs.audio" target="_blank" rel="noopener noreferrer" data-hover>—</a> <h1 class="masthead__title">Resources<span class="dot">.</span></h1>   </div> </header> <script>
+  (function () {
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // ---- live date/time eyebrow (links to time.lufs.audio) ----
+    (function () {
+      var el = document.getElementById('metaLive'); if (!el) return;
+      function dt() { var d = new Date();
+        var wd = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        var mo = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+        var tm = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        return wd + ' ' + d.getDate() + ' ' + mo + ' · ' + tm; }
+      function paint() { el.innerHTML = '<span class="ml-dt">' + dt() + '</span><span class="ml-arrow">↗ time.lufs.audio</span>'; }
+      paint(); setInterval(paint, 1000);
+    })();
+
+    // ---- command-line ticker (home only) ----
+    (function () {
+      var el = document.getElementById('termtext'); if (!el) return;
+      var CMDS = ['ls posts/', 'cat echo-bridge-effects-pedal.md | render', 'git log --oneline -3', 'rsync obsidian/ src/content/  # sync', 'astro build && scripts/verify'];
+      if (reduce) { el.textContent = CMDS[0]; return; }
+      var ci = 0;
+      function type() { var cmd = CMDS[ci], pos = 0; var ti = setInterval(function () { pos++; el.textContent = cmd.slice(0, pos); if (pos >= cmd.length) { clearInterval(ti); setTimeout(del, 1500); } }, 58); }
+      function del() { var cmd = CMDS[ci], p = cmd.length; var di = setInterval(function () { p -= 2; el.textContent = cmd.slice(0, Math.max(0, p)); if (p <= 0) { clearInterval(di); ci = (ci + 1) % CMDS.length; setTimeout(type, 320); } }, 30); }
+      type();
+    })();
+  })();
+</script> <div class="view-pad"> <ul class="resource-list"> <li> <a href="/resources/books/" data-hover>Books</a>  </li><li> <a href="/resources/music/" data-hover>Music</a>  </li><li> <a href="/resources/people/" data-hover>People</a>  </li> </ul> </div>  <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

@@ -1,0 +1,35 @@
+# Daniel Ramirez — Sound & Systems
+
+> Technical writing by Daniel Ramirez: a composer and sound designer turned
+> infrastructure engineer. Covers sound design, interactive and game audio, audio
+> tooling, networked audio, and the systems built around them. Posts favour concrete
+> implementation detail over overview, and cite their sources.
+
+Author: Daniel Ramirez (https://daniel-ramirez.io)
+Canonical: https://blog.daniel-ramirez.io/
+
+## Posts
+
+- [Borrowing Computers](https://blog.daniel-ramirez.io/posts/borrowing-computers/): A VM stuck at 169.254.x.x taught me more about disconnection than I expected. Now I'm building a tool so I can try to live dependency-free.
+- [Reminisce (Reprise)](https://blog.daniel-ramirez.io/posts/reminisce-reprise/): Releasing a reprise of a piano solo I wrote when I was 16, and the foundation I built underneath it so I don't make a habit of releasing every 12 years.
+- [Process Registries, and Workchain](https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/): I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard.
+- [Who Signs the Song?](https://blog.daniel-ramirez.io/posts/who-signs-the-song/): A Suno code leak proved the scraping was real, I found myself staring at my prototype and thinking about where we're headed, and I figured out the thing that it can't generate.
+- [You're a Clock, I'm a Clock](https://blog.daniel-ramirez.io/posts/you-re-a-clock-i-m-a-clock/): The Precision Time Protocol is the drum major every networked-audio rig secretly follows. How the network elects it, and why it's always the first thing to break.
+- [FFmpeg and MCP](https://blog.daniel-ramirez.io/posts/ffmpeg-and-mcp/): After the dozenth throwaway bash script for batch audio conversion, I wrapped FFmpeg in an MCP server so I can stop rewriting the same commands.
+- [Echo Bridge Effects Pedal](https://blog.daniel-ramirez.io/posts/echo-bridge-effects-pedal/): Turning a San Antonio bridge's natural echo into a Daisy Seed guitar pedal + why I ditched convolution for something more flexible.
+- [MCPs and Merlet](https://blog.daniel-ramirez.io/posts/mcps-and-merlet/): In 2017 I studied with Michel Merlet, whose "Genèse Dodécaphonique des Modes" starts with the octave and keeps splitting. I built an MCP server to prod at that determinism and bounce ideas off it.
+- [Portfolio Problems](https://blog.daniel-ramirez.io/posts/portfolio-problems/): Four ways I kept failing at portfolio documentation, and the Obsidian-plus-OBS workflow that made capturing a moment a two-second decision instead of a whole process.
+- [Lua in REAPER](https://blog.daniel-ramirez.io/posts/lua-in-reaper/): A monome norns got me reading Lua, and REAPER got me writing it. How scripting an orchestral template changed the way I think about day-to-day audio work, and the cognitive tax of switching DAWs.
+- [Extract Wisdom](https://blog.daniel-ramirez.io/posts/extract-wisdom/): I came back from GDC 2025 with hours of voice memos I was never going to replay. Whisper and Fabric turned them into something searchable. A small argument for open source as a public good.
+- [MIDI & Audio Recorder](https://blog.daniel-ramirez.io/posts/midi-audio-recorder/): I wanted to sit at the piano and capture a jam with one button: two stereo pairs plus MIDI, timestamped, with no DAW template tempting me to pile on effects.
+- [Spotify Canvas Generator](https://blog.daniel-ramirez.io/posts/spotify-canvas-generator/): A Python script that takes album art, crops it to 9:16, and zhuzhes it up with digital artifacting and vertical pixel glitches = a Spotify Canvas.
+
+## Pages
+
+- [About](https://blog.daniel-ramirez.io/about/): background, current work, and contact
+- [Resources](https://blog.daniel-ramirez.io/resources/): books, music, and people worth knowing about
+
+## Optional
+
+- [RSS feed](https://blog.daniel-ramirez.io/posts/index.xml): full-content feed of every post
+- [Sitemap](https://blog.daniel-ramirez.io/sitemap-index.xml)

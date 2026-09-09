@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Who Signs the Song? · Daniel Ramirez</title><meta name="description" content="A Suno code leak proved the scraping was real, I found myself staring at my prototype and thinking about where we're headed, and I figured out the thing that it can't generate."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/who-signs-the-song/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="Who Signs the Song? · Daniel Ramirez"><meta property="og:description" content="A Suno code leak proved the scraping was real, I found myself staring at my prototype and thinking about where we're headed, and I figured out the thing that it can't generate."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/who-signs-the-song/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2026-07-31T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="ai-music"><meta property="article:tag" content="generative-audio"><meta property="article:tag" content="sound-design"><meta property="article:tag" content="suno"><meta property="article:tag" content="ace-step"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Who Signs the Song? · Daniel Ramirez"><meta name="twitter:description" content="A Suno code leak proved the scraping was real, I found myself staring at my prototype and thinking about where we're headed, and I figured out the thing that it can't generate."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Who Signs the Song?","description":"A Suno code leak proved the scraping was real, I found myself staring at my prototype and thinking about where we're headed, and I figured out the thing that it can't generate.","datePublished":"2026-07-31T00:00:00.000Z","dateModified":"2026-07-31T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/who-signs-the-song/"},"url":"https://blog.daniel-ramirez.io/posts/who-signs-the-song/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"ai-music, generative-audio, sound-design, suno, ace-step"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="dispatch"> <header class="post__header reveal">  <h1 class="post__title">Who Signs the Song?</h1> <time class="post__date" datetime="2026-07-31">July 31, 2026</time>   <p class="byline"><span>By Daniel Ramirez</span></p>  </header>    <div class="prose reveal"> <p>Sometime around the end of last year, I took a day, or a weekend or something, and I decided to figure out how far music generation had come. I was familiar with Udio, Lyria, and the more well-known models, but my definition of “how far we’ve come” is directly proportional to the accessibility of these tools. I had this thought: language models can run at home now, and qwen can actually help get stuff done now. Whisper has been a thing for a while — people are running it and similar packages all the time, on nearly all of their devices, without even knowing about it! So I thought, “how long until we have the local generative music models?”</p>
+<p>Maybe it sounds unrelated, but it’s not, and here’s why: once you have the audio models at home, it’s not long before someone builds a friendly app UI on top of it. In my head, if I’m looking out for one thing, I can expect to find the other. What I found out back then was that we’re way, way closer to that than I would have thought.</p>
+<p>I’ll get back to this, one sec!</p>
+<h2 id="calling-it-now-the-receipts-were-always-the-point">Calling it now: the receipts were always the point</h2>
+<p>On July 15, someone hacked Suno and posted its source code. Not a think-piece about Suno, not a lawsuit’s allegations about Suno - Suno’s own code, with the comments still in.</p>
+<p>404 Media went through the leaked material and found the scraping instructions written down in plain sight<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup>. The dataset manifests are just… sitting there, tallied by the hour: <strong>113,879 hours of YouTube Music, 152,162 hours of “ytm_tagged,” 17,615 hours of Genius, 62,117 hours of Pond5, 12,287 hours of Deezer,</strong> plus Jamendo, IMSLP, Freesound, MuseScore. Code that stream-ripped YouTube through proxies to dodge the blocks. Code that hunted specifically for acapellas so it could isolate vocals.</p>
+<p>AI trains on scraped audio; this isn’t news. We’d assumed it; the earlier RIAA suits alleged it. What’s new is that this time we can read it, in the first person, right there in the codebase. For me, the interesting thing isn’t the theft, but moreso the architecture of it. Every design choice assumed that nobody would ever check. lmfao, hi.</p>
+<p>And it didn’t stop at the model. In early June, the American Federation of Musicians sued Universal and Warner<sup><a href="#user-content-fn-2" id="user-content-fnref-2" data-footnote-ref="" aria-describedby="footnote-label">2</a></sup> — not over the scraping, but over what the labels did next: they settled, turned the scraped work into “licenses,” and collected, without telling the session musicians on those recordings or paying them for the new use. The labels moved to dismiss; the AFM fired back, arguing the video-game ‘new use’ precedent — the same argument the labels lost when games became a format — already settled that the obligation is real.<sup><a href="#user-content-fn-3" id="user-content-fnref-3" data-footnote-ref="" aria-describedby="footnote-label">3</a></sup></p>
+<p>Then Sony filed its <em>second</em> Udio suit, this time naming 30,117 fingerprint-identified recordings and arguing that the majors’ own licensing deals prove a market exists — undercutting any fair-use defense<sup><a href="#user-content-fn-4" id="user-content-fnref-4" data-footnote-ref="" aria-describedby="footnote-label">4</a></sup>. The labels are on both sides of the table: licensing the same catalogs they claim were stolen, collecting from the very pipelines they’re suing over.</p>
+<p>And the publishers’ amended complaint against Anthropic alleges that lyric reproduction wasn’t a training artifact — it was a <em>designed feature</em>, baked into how Claude responds to prompts, with internal records showing the company knew it<sup><a href="#user-content-fn-5" id="user-content-fnref-5" data-footnote-ref="" aria-describedby="footnote-label">5</a></sup>. Same architecture of plausible deniability, different company.</p>
+<p>Then at the other end of the pipe, Lorde watched Spotify’s new “About the Song” feature staple an AI-generated description onto her own track that described the wrong song<sup><a href="#user-content-fn-6" id="user-content-fnref-6" data-footnote-ref="" aria-describedby="footnote-label">6</a></sup>. “I’m gonna go out on a limb and say we don’t want this.”</p>
+<p>Scraped without consent, laundered without disclosure, interpreted without accuracy. Three different companies, one shared assumption: <em>hope nobody checks.</em> If it holds behind the scenes at one company this brazenly, it’s worth asking how much of it is load-bearing everywhere the provenance is invisible — not because I can prove that, but because when checking is optional and free to skip, skipping becomes a cost-saving move. “Incentives” all the way down.</p>
+<h2 id="i-built-the-thing-i-kinda-dont-want-to-exist">I built the thing I kinda don’t want to exist</h2>
+<p>So, I stayed up late this week catching myself up on all of this. My mind wandered, and I was reminded of late last year, when I decided to teach myself about Comfyui, an open platform that turns generative media into a node-based workflow. I wanted to know how deep the rabbit hole goes, and rev-and-proto is how I always try to find out. If I end up with a usable tool, someone smarter already built it. And, I was indeed successful, so here we are.</p>
+<p>I built myself a generative-audio pipeline. Two of them, actually — one around ACE-Step 1, and the other around ACE-Step 1.5XL. One prompt was one YAML file, and every render landed in its own timestamped folder next to its input, content-hashed and cataloged, the same way I make everything.</p>
+<p>So yeah, it worked. Here I was, running a little dookie factory on my MacBook: no API calls, no token credits, no instrument in my hand, GPU accelerated, using an audio model less bloated than Pro Tools. I could leave it on overnight, or I could leave it on forever. Out comes the dookie.</p>
+<p>And when I listened back, I heard something I recognized: competent, plausible, mass-produced. Exactly the thing Adam Neely keeps naming.</p>
+<h2 id="solipsistic-listening">Solipsistic Listening</h2>
+<p>In his “Bad Future” video<sup><a href="#user-content-fn-7" id="user-content-fnref-7" data-footnote-ref="" aria-describedby="footnote-label">7</a></sup> and again on the <em>Within Reason</em> podcast, Neely’s sharpest point is that automating idea generation removes the most inspiring part of the craft — “I don’t see how greatness can come from a tool like generative AI”<sup><a href="#user-content-fn-8" id="user-content-fnref-8" data-footnote-ref="" aria-describedby="footnote-label">8</a></sup>. And on <em>Music Tectonics</em> he draws exactly the same line I’ve written about and that I still draw: the stem-separation tools I use every day are not the same thing as Suno, and flattening them both into “AI” wrecks the conversation<sup><a href="#user-content-fn-9" id="user-content-fnref-9" data-footnote-ref="" aria-describedby="footnote-label">9</a></sup>.</p>
+<p>He’s a musician figuring out what swimming looks like in an ocean of AI generated content, what counts as a floatie, and whether it’s fine to build a boat instead. Me too, and the thing I can add is that I actually built the boat and took it out, explored the deep and all that. And yeah, he’s right about the water.</p>
+<p>But “idea generation” isn’t one thing. There’s the <em>spark</em> — the match that strikes which breaks the silence — and there’s the <em>idea as finished statement</em>, the thing that means something because a person meant it. My pipeline is genuinely useful for the first and completely useless for the second. The de-skilling Neely warns about happens the moment someone mistakes the match for the fire and ships it. What I heard on my MacBook was a filesystem full of struck matches, but none of them were warm.</p>
+<p>Neely has a phrase for the far end of this, “solipsistic listening”: the drift toward only enjoying the music you generated yourself. Which is real, and which is also fine for a lot of people. There’s a large, growing audience that genuinely does not care who or what made the track, and the 100% AI acts charting right now are proof. That’s not a lesser audience. It’s a <em>different</em> one, and I’ve never built for that one. Worth saying plainly so the rest of this doesn’t read as a claim that everybody wants what I want.</p>
+<h2 id="when-generation-is-free-whats-left">When generation is free, what’s left?</h2>
+<p>So play it forward. If ACE-class models already run on a laptop, then “self-hosted Suno on your phone” isn’t an if, but when. Generation itself is on its way to being free, abundant, local, and instant. And when a thing becomes abundant, its price goes to zero and the value moves next door, to whatever stays scarce.</p>
+<p>I feel the tempting answer: “taste — the machine can’t do taste, so my taste is the moat.” But, I don’t really buy it. If taste is the moat, then I think, “taste relative to what?” The models? Or the other humans listening? In a world with “we-have-spotify-at-home”, airtime just got a whole lot more crowded.</p>
+<p>Here’s where we are right now: Deezer now receives roughly 90,000 fully-AI tracks every day — more than half of all new uploads<sup><a href="#user-content-fn-10" id="user-content-fnref-10" data-footnote-ref="" aria-describedby="footnote-label">10</a></sup>. But, those tracks account for only 1–3% of actual streams, and Deezer says 85% of those streams were fraudulent in 2025. The flood is real, but right now it’s inventory dilution, royalty-pool theft, noise. The problem is the signal gets harder to find.</p>
+<p>What I’ve come up with, and maybe it’s wrong, but it’s what I’ve settled with for now, is that the thing that doesn’t commoditize isn’t a skill, really. It’s accountability for the output. Audio is about to be free, so the audio pros should have something to lose if the work is bad, and should be able to show you how it was made. A model can’t be fired, or sued, or shamed, and doesn’t have a reputation it’s afraid to lose. But I do! And that’s even more of an asset now, but it always has been.</p>
+<h2 id="weve-already-built-systems-that-work-like-this">We’ve already built systems that work like this</h2>
+<p>I got this backwards until a certification course I’m taking knocked it straight. I’d assumed “a human has to be accountable” was a soft, artisanal value — nice, not load-bearing, but in practice it’s the opposite. Every high-stakes field on earth has already codified it, oftentimes as law!</p>
+<p>A CEO and CFO have to <em>personally</em> certify their company’s financials under Sarbanes-Oxley (§302 and §906); a knowing false certification is prison time for that named person, not a line-item fine for the company. In pharma, a <strong>Qualified Person</strong> has to personally sign off every single batch of medicine before it can be released: a named human, legally on the hook for what ships. In UK financial services, every senior manager holds a “Statement of Responsibilities” and a personal Duty of Responsibility for their patch. The structural engineer stamps the drawing. The airline names an accountable manager.</p>
+<p>The pattern is exact: the law almost never says a machine can’t do the <em>work.</em> It says a named human must remain <em>answerable</em> for it, even when a machine did the work. You can automate the task. You cannot automate the signature.</p>
+<p>That’s what a session musician’s signature in the credits always was, someone who stood behind the take. What Suno’s architecture removes isn’t melody, harmony, or timbre; it removes the signature. No provenance, no consent, nobody answerable. To me, it’s way less of a music problem, and more of an accountability sinkhole.</p>
+<h2 id="crew-stays-backstage">Crew stays backstage</h2>
+<p>I’ll keep using the tools that let me do what I already do, and I’ll always have my eye on what’s coming around the corner to see what’ll help with my pipelines. I’ve written about the way I use models previously. For me, they’re useful as a way to keep learning and building, orbiting around the flows, but never taking the reins.</p>
+<p>The machine I built showed me the future, and taught me about my intrinsic value as a human. I will not be sharing the repo 😹 more soon.</p>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p>404 Media — “Hack Reveals Suno AI Music Generator Scraped YouTube, Deezer, and Genius” (2026-07-15) — <a href="https://www.404media.co/hack-reveals-suno-ai-music-generator-scraped-youtube-deezer-and-genius/">https://www.404media.co/hack-reveals-suno-ai-music-generator-scraped-youtube-deezer-and-genius/</a> <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-2">
+<p>MBW — AFM files suit against UMG and Warner over Suno and Udio licensing deals (complaint filed 2026-06-05, SDNY) — <a href="https://www.musicbusinessworldwide.com/musicians-union-sues-umg-and-warner-music-alleging-member-recordings-were-licensed-to-suno-and-udio-without-compensation-or-credit/">https://www.musicbusinessworldwide.com/musicians-union-sues-umg-and-warner-music-alleging-member-recordings-were-licensed-to-suno-and-udio-without-compensation-or-credit/</a> <a href="#user-content-fnref-2" data-footnote-backref="" aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-3">
+<p>MBW — AFM urges court to reject Universal and Warner bid to dismiss lawsuit, video-game “new use” precedent (2026-07-22) — <a href="https://www.musicbusinessworldwide.com/us-musicians-union-urges-court-to-reject-universal-and-warner-bid-to-dismiss-lawsuit-over-suno-and-udio-deals/">https://www.musicbusinessworldwide.com/us-musicians-union-urges-court-to-reject-universal-and-warner-bid-to-dismiss-lawsuit-over-suno-and-udio-deals/</a> <a href="#user-content-fnref-3" data-footnote-backref="" aria-label="Back to reference 3" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-4">
+<p>MBW — Sony Music files new lawsuit against Udio asserting over 30,000 sound recordings (2026-07-20) — <a href="https://www.musicbusinessworldwide.com/sony-music-files-new-lawsuit-against-ai-platform-udio-asserting-over-30000-sound-recordings-a-judge-barred-it-from-adding-to-its-original-case/">https://www.musicbusinessworldwide.com/sony-music-files-new-lawsuit-against-ai-platform-udio-asserting-over-30000-sound-recordings-a-judge-barred-it-from-adding-to-its-original-case/</a> <a href="#user-content-fnref-4" data-footnote-backref="" aria-label="Back to reference 4" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-5">
+<p>MBW — Music publishers file amended lyrics lawsuit against Anthropic, alleging “designed feature” (2026-07-23) — <a href="https://www.musicbusinessworldwide.com/music-publishers-file-amended-lyrics-lawsuit-against-anthropic-just-as-ai-firms-separate-1-5b-piracy-settlement-with-authors-wins-court-approval/">https://www.musicbusinessworldwide.com/music-publishers-file-amended-lyrics-lawsuit-against-anthropic-just-as-ai-firms-separate-1-5b-piracy-settlement-with-authors-wins-court-approval/</a> <a href="#user-content-fnref-5" data-footnote-backref="" aria-label="Back to reference 5" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-6">
+<p>Pitchfork — Lorde on Spotify’s AI song descriptions (2026-07-16) — <a href="https://pitchfork.com/story/lorde-on-spotifys-ai-song-descriptions/">https://pitchfork.com/story/lorde-on-spotifys-ai-song-descriptions/</a> <a href="#user-content-fnref-6" data-footnote-backref="" aria-label="Back to reference 6" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-7">
+<p>Adam Neely — “Suno, AI Music, and the Bad Future” (2026-02-02) — <a href="https://www.youtube.com/watch?v=U8dcFhF0Dlk">https://www.youtube.com/watch?v=U8dcFhF0Dlk</a> <a href="#user-content-fnref-7" data-footnote-backref="" aria-label="Back to reference 7" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-8">
+<p>MusicTech — Adam Neely on generative AI replacing music craft, Within Reason podcast (2026-05-14) — <a href="https://musictech.com/news/music/adam-neely-generative-ai-replacing-music-craft/">https://musictech.com/news/music/adam-neely-generative-ai-replacing-music-craft/</a> <a href="#user-content-fnref-8" data-footnote-backref="" aria-label="Back to reference 8" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-9">
+<p>Music Tectonics — Adam Neely on the hidden cost of AI music, stem-vs-Suno distinction and “solipsistic listening” (2026-04-29) — <a href="https://www.musictectonics.com/post/adam-neely-on-the-hidden-cost-of-ai-music">https://www.musictectonics.com/post/adam-neely-on-the-hidden-cost-of-ai-music</a> <a href="#user-content-fnref-9" data-footnote-backref="" aria-label="Back to reference 9" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-10">
+<p>MBW — 90,000 AI tracks flood Deezer daily, passing half of all new music uploads (2026-07-21) — <a href="https://www.musicbusinessworldwide.com/90000-ai-tracks-flood-deezer-daily-passing-half-of-new-music-uploads-for-the-first-time/">https://www.musicbusinessworldwide.com/90000-ai-tracks-flood-deezer-daily-passing-half-of-new-music-uploads-for-the-first-time/</a> <a href="#user-content-fnref-10" data-footnote-backref="" aria-label="Back to reference 10" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/who-signs-the-song.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · who-signs-the-song.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

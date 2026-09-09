@@ -1,0 +1,274 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Borrowing Computers · Daniel Ramirez</title><meta name="description" content="A VM stuck at 169.254.x.x taught me more about disconnection than I expected. Now I'm building a tool so I can try to live dependency-free."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/borrowing-computers/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="Borrowing Computers · Daniel Ramirez"><meta property="og:description" content="A VM stuck at 169.254.x.x taught me more about disconnection than I expected. Now I'm building a tool so I can try to live dependency-free."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/borrowing-computers/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2026-08-20T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="virtualization"><meta property="article:tag" content="homelab"><meta property="article:tag" content="infrastructure"><meta property="article:tag" content="cli"><meta property="article:tag" content="self-hosted"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Borrowing Computers · Daniel Ramirez"><meta name="twitter:description" content="A VM stuck at 169.254.x.x taught me more about disconnection than I expected. Now I'm building a tool so I can try to live dependency-free."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Borrowing Computers","description":"A VM stuck at 169.254.x.x taught me more about disconnection than I expected. Now I'm building a tool so I can try to live dependency-free.","datePublished":"2026-08-20T00:00:00.000Z","dateModified":"2026-08-20T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/borrowing-computers/"},"url":"https://blog.daniel-ramirez.io/posts/borrowing-computers/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"virtualization, homelab, infrastructure, cli, self-hosted"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="build"> <header class="post__header reveal">  <h1 class="post__title">Borrowing Computers</h1> <time class="post__date" datetime="2026-08-20">August 20, 2026</time>     </header>    <div class="prose reveal"> <p>For ten days this past March, I sat in silence in the middle of Texas, out past College Station, on a meditation retreat that cut me off from basically everything — no phone, no conversation, from like 4:30 am to 9:30 pm. Just sitting with my own mind. Most of it was genuinely peaceful, lowkey, but some of it wasn’t. Instead of my brain taking advantage of the chance to chill for a sec, it spent a good amount of time trying to talk me into finding a reason or a way to reconnect to others: check in my social life, or even just head-nod at somebody while i was walking along the meditation path at the center. I later learned that sitting with the feeling is part of the act of learning to meditate, lol. It turns out being disconnected from my network, even for just a little while, takes some practice.</p>
+<p>A few months later I watched a newborn computer experiencing the same silent bliss that I felt, while my brain once again was trying to figure out how to get it to connect to my Wi-Fi. I spun up a fresh VM, and instead of a real address it reported <code>169.254.x.y</code>: the networking equivalent of “anicca, anicca”. Cut off, nobody in, nobody out. Computational equanimity. On the retreat, the isolation was the whole point, and I signed up for it. But on my little guy, it meant something wasn’t right, and it took me most of an evening to find out what.</p>
+<p>The situation is the same, but the feeling is totally different depending on whether you asked for it. I spent the last week exploring the distinction: making disconnection a deliberate choice instead of an accident.</p>
+<h2 id="someone-already-solved-this-in-1964">Someone already solved this, in 1964</h2>
+<p>If you’ve never considered a virtual machine before, think of it as a way of convincing one physical computer to behave like several separate ones, each with its own operating system, disk, and sense of being the only thing running. Underneath, though, they’re all sharing the same processor and memory. It’s like a computer with split personalities: in one view it may perceive itself as a Quant, and on the other hand it’s decided it’s a concert cellist, and on a third it’s a sysadmin. Under the hood though, it’s still the same body. If a human could handle being split up the way a VM is, we’d all probably get a lot more done! But for computers it’s nothing new, and actually it predates today’s concept of a computer entirely.</p>
+<p>Picture this, mid-1960s: a team at <a href="https://www.ibm.com/support/pages/zvm/history/50th/vm370ori.pdf">IBM’s Cambridge Scientific Center</a> was staring down a really pricey problem: their mainframes cost a fortune, and only one person could really operate one at a time. The answer was a research system called CP-40, then CP-67, then shipped commercially as VM/370 in 1972. It let a single mainframe present itself as a fully independent, isolated logical fraction of itself to each simultaneous user. With this, nobody had to share a terminal queue or overwrite anyone else’s files. For the work they were doing, everyone got to believe that they had the whole machine to themselves. And the VMs thought the same! That’s the whole deal, and the base idea hasn’t really changed since. It’s just become smaller scale, more convenient, and in some cases, more paywalled lol.</p>
+<p>(A fun one for the curious: here’s the actual math for how a VM makes sense. Gerald Popek and Robert Goldberg’s 1974 paper, a decade later(!). <a href="https://doi.org/10.1145/800009.808061">“Formal Requirements for Virtualizable Third Generation Architectures”</a> nailed down the exact condition — every instruction that could break another user’s isolation has to be one the processor is willing to intercept and check. Some chip designs turned out to be much easier to virtualize than others, decades before anyone was spinning up or metering VMs by the second.)</p>
+<h2 id="dude-who-cares">Dude who cares</h2>
+<p>So aside from the ancient history, in my own day to day usage a VM cashes out as three pretty different-feeling things for me:</p>
+<ul>
+<li><strong>They make great remote desktops</strong> — a full computer with a screen, reachable from a browser tab, for when I need a GUI that isn’t my laptop, or for temporarily sharing some compute to someone else.</li>
+<li><strong>They also automate my tests and builds!</strong> VMs make up my autoscaling CI runners — they’re disposable machines that exists just long enough to run a build or a test suite, then validate my PR, nope out, and disappear forever. I kill computers at scale!!</li>
+<li><strong>An isolated, virtual sandbox</strong> — a scoped-down machine I don’t have to worry about messing up if something goes sideways. Try out some weird OS that came from god knows where, or probe some software that I probably shouldn’t be messing with lol. Poke at it for a bit, and then spin the vm down and it’s totally gone. Like tears in rain.</li>
+</ul>
+<p>Three different vibes, same trick a couple of different ways. It’s fun!</p>
+<h2 id="i-have-made-every-mistake">I have made every mistake!</h2>
+<p>Here’s “baby’s first VM” story, which taught me how tricky these guys are. Starting with Cyberbuddha from the intro:</p>
+<p>As a part of getting my CompTIA certs, I practiced spinning up fresh Windows 11 VMs on my Linux box. Like I mentioned: no network, no obvious reason. Anicca. By the time it worked again I’d been wrong about the root cause approximately six times. But as usually happens, I learned more by messing up than I would have if I’d done it perfectly the first time.</p>
+<p>A VM’s path to the internet is like a stack of independent layers, and on my machine I had <em>four</em> of them lmfao, all quietly editing the same underlying kernel plumbing (Linux’s packet-handling framework, <a href="https://netfilter.org/projects/nftables/">netfilter</a>, the shared table everything else writes rules into):</p>
+<ul>
+<li><strong>libvirt</strong>, the virtualization layer, which puts the VM on a virtual bridge and hands out addresses (<a href="https://wiki.libvirt.org/Networking.html">the default NAT network</a>).</li>
+<li><strong>UFW</strong>, the host’s <a href="https://ubuntu.com/server/docs/how-to/security/firewalls/">firewall</a>.</li>
+<li><strong>Docker</strong>, which grafts its own rules in for containers.</li>
+<li><strong>Tailscale</strong>, my private mesh VPN.</li>
+</ul>
+<p>Any one of them can silently drop your traffic on their own, and it was <em>so fun for me</em> each time it happened. Dropped packets, no errors, they just literally never showed up! The Best.</p>
+<p>The VM couldn’t even get a real address at first — that’s the APIPA reference from before — but this time it was definitely not on purpose. Here’s how that went for me: A host firewall rule was quietly dropping DHCP requests. Fixed that, felt smart! A big mistake against the evil digital monk baby.</p>
+<p>What followed was a stack of confident theories, followed by error logs that made me question if I should hang up the patch cables for good and head back to the meditation center by College Station. Eventually, I found an embarrassing pattern: I kept reasoning about a <em>config file</em> or some <em>default I assumed</em>, instead of checking what the machine was actually doing. A kernel firewall I was sure was the culprit wasn’t even running. A ping test that meant nothing because Windows blocks those by default. A DNS server I assumed was slow that answered in zero-point-zero-zero-zero seconds when I actually asked it.</p>
+<p>The turn came from a rule that did nothing. I’d written firewall rules for the machine’s Wi-Fi interface — obviously correct, I thought, as the return traffic clearly comes back over Wi-Fi — and then checked how many packets they’d matched. Zero 💀. In both directions, even while traffic was actively flowing. I checked to see how far the drive would be to College Station. Oh, that’s not too far! Computers suck anyway..</p>
+<p>Fast forward: as I’ve now learned, a rule that matches zero packets is actually good evidence, and I just didn’t know what I was looking for. If my Wi-Fi rules were catching nothing, the traffic wasn’t using Wi-Fi at all. So, check which road your packets are actually on:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">ip</span><span style="color:#9ECBFF"> route</span><span style="color:#9ECBFF"> get</span><span style="color:#79B8FF"> 8.8.8.8</span></span></code></pre>
+<p>The answer: the traffic was leaving over <code>tailscale0</code>, not Wi-Fi. My machine was acting as a <a href="https://tailscale.com/docs/features/exit-nodes">Tailscale exit node</a> — volunteering to route other devices’ internet traffic through itself, like a reverse VPN — and that silently captured all outbound traffic, VM included. The fix was to stop naming an interface and write rules for the VM’s subnet instead, so they hold no matter which road the host’s routing picks:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">ufw</span><span style="color:#9ECBFF"> route</span><span style="color:#9ECBFF"> allow</span><span style="color:#9ECBFF"> from</span><span style="color:#9ECBFF"> 192.168.122.0/24</span></span>
+<span class="line"><span style="color:#B392F0">ufw</span><span style="color:#9ECBFF"> route</span><span style="color:#9ECBFF"> allow</span><span style="color:#9ECBFF"> to</span><span style="color:#9ECBFF">   192.168.122.0/24</span></span></code></pre>
+<p>I could’ve found this in thirty seconds if <code>ip route get</code> had been the first thing I ran instead of the last. But I didn’t, and I keep relearning this lesson in different ways all the time: the map isn’t the territory, the config isn’t always the running state, and a dashboard’s green light isn’t proof. When something is silently broken across layers, go measure the actual path.</p>
+<h2 id="exedev-wrangles-vms-as-a-service-and-inspired-me-to-copy-their-homework">exe.dev wrangles VMs as a service, and inspired me to copy their homework</h2>
+<p>So, there’s that evening^^. And then there’s this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ssh</span><span style="color:#9ECBFF"> exe.dev</span><span style="color:#9ECBFF"> new</span><span style="color:#9ECBFF"> myblog</span></span>
+<span class="line"><span style="color:#B392F0">vm</span><span style="color:#9ECBFF"> myblog</span><span style="color:#9ECBFF"> ready</span><span style="color:#9ECBFF"> in</span><span style="color:#9ECBFF"> 0.8s</span></span></code></pre>
+<p>That’s an example from <a href="https://exe.dev/vps">exe.dev’s own docs</a>. A real, isolated, KVM-backed Linux machine, with a valid TLS certificate and key-only SSH already set up, in under a second. None of the hassle, none of the ego-draining errors! I’m awesome again. Their own account of why the thing exists is refreshingly undramatic — the founders were <a href="https://blog.exe.dev/meet-exe.dev">building a different tool</a> (<code>sketch.dev</code>) and “found ourselves needing more machines than ever before… Running it turned out to be the hassle. So we built a platform for making it easy.” I mean, yeah.</p>
+<p>So, reasonable to ask at this point why the rest of this post needs to exist at all. exe.dev works, so be done with it, right? Well first, I’m insane. But also! I had a score to settle with my network stack, and I was going to untangle it even if I had to go all the way to the bottom.</p>
+<h2 id="whats-inside-a-cloud-computer">What’s inside a cloud computer?</h2>
+<p>The trick that lets exe.dev and other services hand out isolated machines in under a second is a much newer descendant of the same 1960s idea.</p>
+<p>Picture this, 2007: Intel and AMD had just added hardware virtualization extensions to their chips, and a small team led by Avi Kivity, at a startup called Qumranet, used them to turn the Linux kernel itself into a hypervisor, a completely open source stack. The project was called KVM, it went straight into the Linux kernel that same year, and the <a href="https://www.kernel.org/doc/ols/2007/ols2007v1-pages-225-230.pdf">original paper</a> describing it is a genuinely readable account of turning Popek and Goldberg’s 1974 condition into something normal people could actually run. It turned out to be the final boss of my networking debacle, and we’re cool now.<sup><a href="#user-content-fn-1" id="user-content-fnref-1" data-footnote-ref="" aria-describedby="footnote-label">1</a></sup></p>
+<h2 id="revving-v0">Revving v0</h2>
+<p>Fast forward again, and I felt the urge for a new project. It turned in a prototype with a very phoned-in name, exe-sandbox-provider. It’s a little cli adapter so I can treat exe.dev VMs as disposable sandboxes as easily as running any program locally. A few ideas that became central to my workflow started there: cloning from golden images rather than installing from scratch, minting ephemeral SSH keys that vanish on teardown, setting lease timeouts so dead tasks get reaped automatically, and keeping credentials strictly in the local broker rather than letting them leak into logs or prompts. It built on another in-house piece, another phoned-in name lol — lufs-runner — which handled ephemeral GitHub Actions runners on bare metal.</p>
+<p>So, the “new project” urge turned into full-blown feature creep very shortly after. I built the prototype to solve one immediate task, and within a week I was asking myself things like “Okay, but what if I stop using exe.dev? Or what if i want to switch to a different provider? Can I be my own provider?” I was already generalizing it into a full harness. Designing an abstraction is almost always more fun than doing the work the abstraction was supposed to unblock. I don’t have a cure for that tendency, but I made something sick.</p>
+<h2 id="so-heres-what-im-building">So here’s what I’m building</h2>
+<p>That generalization turned into lsbx (short for lufs-sandbox, better!!), a unified CLI and backend for managing disposable compute.</p>
+<p>The core mechanism relies on golden images — pre-configured base images you clone instantly instead of installing packages every time. In my registry, each image carries a flavor (desktop, agent, or ci-runner) along with a content hash (<code>lufs-&#x3C;sha256[:8]></code>). When I ask for a sandbox, I get a clone of a verified state, not a fresh operating system and a prayer.</p>
+<p>The lifecycle verbs are intentionally minimal: spin up from a golden, execute a command, transfer files, check health, and tear down. Both exe.dev and my local libvirt host implement this exact contract. From the terminal, switching targets is just a parameter:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># Spin up a local desktop sandbox with a 1-hour lease</span></span>
+<span class="line"><span style="color:#B392F0">lsbx</span><span style="color:#9ECBFF"> up</span><span style="color:#9ECBFF"> desktop</span><span style="color:#79B8FF"> --lease</span><span style="color:#9ECBFF"> PT1H</span><span style="color:#79B8FF"> --backend</span><span style="color:#9ECBFF"> libvirt</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># Launch a disposable agent sandbox in the cloud</span></span>
+<span class="line"><span style="color:#B392F0">lsbx</span><span style="color:#9ECBFF"> up</span><span style="color:#9ECBFF"> agent</span><span style="color:#79B8FF"> --lease</span><span style="color:#79B8FF"> 1800</span><span style="color:#79B8FF"> --backend</span><span style="color:#9ECBFF"> exedev</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D"># List active sandboxes or reap expired leases</span></span>
+<span class="line"><span style="color:#B392F0">lsbx</span><span style="color:#9ECBFF"> list</span></span>
+<span class="line"><span style="color:#B392F0">lsbx</span><span style="color:#9ECBFF"> reap</span></span></code></pre>
+<p>The CLI doesn’t need to know how libvirt configures a bridge or how exe.dev provisions SSH keys; it just talks to the common interface. This is the same <a href="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/">process-registry model</a> showing up once again: the real value is having a deterministic procedure to get a working environment, completely separated from whoever is hosting it.</p>
+<h2 id="what-a-third-backend-would-actually-unlock">What a third backend would actually unlock</h2>
+<p>Configurable backends only matter if there’s a real reason to add one, so here’s the next one I’m thinking of: a cloud GPU provider. My homelab machine has a decent GPU in it — enough for day-to-day audio-ML work, or gaming lol — but sometimes jobs are bigger than usual! For example, my personal recording library is about 259,000 files across 337 GB, and re-running a full embedding pass across all of it is an overnight job on that local GPU. On a rented H100 or A100, it’s closer to an hour.</p>
+<p>The honest version of that roadmap isn’t “just add Modal (or Lambda, or RunPod) as a backend,” though. Those platforms are built around running a <em>function</em> or a <em>container</em> for the duration of a job, not around handing you a persistent machine with a filesystem you SSH into and leave running — I’m modeling the backend provider as adapters though, so I think I’ll figure it out eventually. And modal.com gives users $30/month in free credit just for signing up for me, which gives me the chance to rev.</p>
+<h2 id="how-i-want-to-talk-to-this-thing">How I want to talk to this thing</h2>
+<p>Two things I care about in any CLI tool I build: it has to be scriptable by something that isn’t me, and a human should still be able to sit down and use it comfortably. The scriptable half already has a real shape — every command supports a <code>--json</code> flag, and the output contract is fixed no matter which backend answered:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> lsbx</span><span style="color:#9ECBFF"> up</span><span style="color:#9ECBFF"> agent</span><span style="color:#79B8FF"> --lease</span><span style="color:#9ECBFF"> PT1H</span><span style="color:#79B8FF"> --json</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">  "id"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "sbx-4f21a",</span></span>
+<span class="line"><span style="color:#B392F0">  "profile"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "agent",</span></span>
+<span class="line"><span style="color:#B392F0">  "flavor"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "agent",</span></span>
+<span class="line"><span style="color:#B392F0">  "host"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "10.20.3.14",</span></span>
+<span class="line"><span style="color:#B392F0">  "lease_expires_at"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "2026-08-20T16:30:00Z",</span></span>
+<span class="line"><span style="color:#B392F0">  "verified"</span><span style="color:#79B8FF">:</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> lsbx</span><span style="color:#9ECBFF"> exec</span><span style="color:#9ECBFF"> sbx-4f21a</span><span style="color:#9ECBFF"> "python3 --version"</span><span style="color:#79B8FF"> --json</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">  "id"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "sbx-4f21a",</span></span>
+<span class="line"><span style="color:#B392F0">  "exit_code"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> 0,</span></span>
+<span class="line"><span style="color:#B392F0">  "stdout"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> "Python 3.12.4\n",</span></span>
+<span class="line"><span style="color:#B392F0">  "stderr"</span><span style="color:#79B8FF">:</span><span style="color:#9ECBFF"> ""</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> lsbx</span><span style="color:#9ECBFF"> down</span><span style="color:#9ECBFF"> sbx-4f21a</span><span style="color:#79B8FF"> --json</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#B392F0">  "destroyed"</span><span style="color:#79B8FF">:</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">"sbx-4f21a"</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#B392F0">  "count"</span><span style="color:#79B8FF">:</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>For automated tasks and scripts, every command outputs clean JSON with <code>--json</code>. But for quick day-to-day checks, I also wired a little tui in lsbx, which was super fun to design! Running <code>lsbx</code> opens a live-refreshing dashboard showing running sandboxes, backend placement, active leases, and memory usage. If a job is finished or an experiment went off the rails, I can inspect guest logs or tear down the instance.</p>
+<p>Recently, the abstraction really paid off when it comes to CI. I set up a zero-idle broker with a dual-placement strategy: when a GitHub Actions job queues, my local KVM immediately tries to claim it on local hardware. If it’s busy running a build or offline, my cloud instance on exe.dev catches the fallback and handles the run. Same golden image, same test suite, zero manual switching. VMs, wrangled.</p>
+<h2 id="choosing-the-silence">Choosing the silence</h2>
+<p>My first broken VM never volunteered what was wrong. I had to interrogate the running kernel directly with <code>ip route get</code> instead of trusting what I thought my config files were doing. <code>lsbx</code> comes from that same mindset: instead of tying a project to a specific cloud vendor or a fragile local setup, define the exact environment contract you need, ask generically for any host that can fulfill it, and let the machinery handle the handoff.</p>
+<p>I want my compute infra to behave flexibly like this all the time. Disconnection is genuinely peaceful when you chose it and can trust the boundaries you set, but an accidental <code>169.254.x.x</code> address is just a broken bridge. In the end, the silence isn’t the problem: it’s whether you wanted it or not! In College Station, I wanted it! And when it comes to network, it’s the exact same: whether a machine is reachable, isolated, running locally, or scaling into the cloud, it’s cause that’s how it was configured, and if it fails it’ll fail loudly!</p>
+<p>Building this much tooling just to abstract away a little infra is kinda insane, but like I said I’m insane. Having a predictable floor to build on makes all the difference!</p>
+<p>More soon! 🏃</p>
+<hr>
+<p><em>Sources (verified 2026-08-20):</em></p>
+<ul>
+<li>IBM, <em>The Origin of the VM/370 Time-Sharing System</em> — <a href="https://www.ibm.com/support/pages/zvm/history/50th/vm370ori.pdf">https://www.ibm.com/support/pages/zvm/history/50th/vm370ori.pdf</a></li>
+<li>Popek &#x26; Goldberg, <em>Formal Requirements for Virtualizable Third Generation Architectures</em> (CACM 1974) — <a href="https://doi.org/10.1145/800009.808061">https://doi.org/10.1145/800009.808061</a></li>
+<li>Kivity et al., <em>kvm: the Linux Virtual Machine Monitor</em> (OLS 2007) — <a href="https://www.kernel.org/doc/ols/2007/ols2007v1-pages-225-230.pdf">https://www.kernel.org/doc/ols/2007/ols2007v1-pages-225-230.pdf</a></li>
+<li>Netfilter / nftables — <a href="https://netfilter.org/projects/nftables/">https://netfilter.org/projects/nftables/</a></li>
+<li>Libvirt default NAT networking — <a href="https://wiki.libvirt.org/Networking.html">https://wiki.libvirt.org/Networking.html</a></li>
+<li>Ubuntu UFW documentation — <a href="https://ubuntu.com/server/docs/how-to/security/firewalls/">https://ubuntu.com/server/docs/how-to/security/firewalls/</a></li>
+<li>Tailscale exit nodes — <a href="https://tailscale.com/docs/features/exit-nodes">https://tailscale.com/docs/features/exit-nodes</a></li>
+<li>exe.dev VPS documentation — <a href="https://exe.dev/vps">https://exe.dev/vps</a></li>
+<li>exe.dev founding story — <a href="https://blog.exe.dev/meet-exe.dev">https://blog.exe.dev/meet-exe.dev</a></li>
+<li>exe.dev about / team — <a href="https://exe.dev/about">https://exe.dev/about</a></li>
+<li>Process Registries and Workchain — <a href="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/">https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/</a></li>
+</ul>
+<section data-footnotes="" class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-1">
+<p>Fun fact: exe.dev is built by <a href="https://exe.dev/about">David Crawshaw and Josh Bleecher Snyder</a> — Crawshaw was a co-founder of Tailscale and its CTO from 2019 to 2024, and Snyder was an early Tailscale engineer. Which means the mesh VPN that quietly hijacked my VM’s traffic a few paragraphs ago, and the platform that now lets me stop thinking about VM networking at all, were built by overlapping sets of people who have clearly been thinking about routing for a long time. I was really not expecting to find the same folks in both places! I just noticed it while researching, which is more or less how I want all of my citations to work. <a href="#user-content-fnref-1" data-footnote-backref="" aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/borrowing-computers.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · borrowing-computers.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>

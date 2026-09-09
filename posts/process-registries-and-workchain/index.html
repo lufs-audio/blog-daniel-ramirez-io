@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"> <head><meta charset="utf-8"><script>
+      /* anti-FOUC: resolve theme before first paint. Stored choice wins; else follow
+         the visitor's browser preference, resolved to a concrete light|dark. */
+      (function(){try{var v=localStorage.getItem('dr-theme');
+        document.documentElement.setAttribute('data-theme',(v==='light'||v==='dark')?v:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));
+      }catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+    </script><meta name="viewport" content="width=device-width, initial-scale=1"><title>Process Registries, and Workchain · Daniel Ramirez</title><meta name="description" content="I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard."><!-- The lufs-vh mark is BOTH the favicon and the footer stamp — one file at two
+         sizes, same as resume.daniel-ramirez.io and daniel-ramirez.io. While the mark
+         is unrendered (site.ts → visualHash === null) the cloud data-URI stands in. --><link rel="icon" type="image/svg+xml" href="/vh-blog-ring.svg"><link rel="alternate" type="application/rss+xml" title="Daniel Ramirez" href="/posts/index.xml"><link rel="canonical" href="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/"><!-- Attribution + crawl policy. `author` and explicit snippet limits are what
+         answer engines lean on; max-snippet:-1 lets them quote enough to cite well. --><meta name="author" content="Daniel Ramirez"><meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"><!-- Open Graph: makes shared links unfurl with a title/description/image
+         instead of rendering as a bare grey URL in Slack, Bluesky, LinkedIn. --><meta property="og:type" content="article"><meta property="og:title" content="Process Registries, and Workchain · Daniel Ramirez"><meta property="og:description" content="I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard."><meta property="og:url" content="https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/"><meta property="og:site_name" content="Daniel Ramirez"><meta property="og:locale" content="en_US"><meta property="og:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><meta property="article:published_time" content="2026-08-07T00:00:00.000Z"><meta property="article:author" content="https://daniel-ramirez.io"><meta property="article:tag" content="process"><meta property="article:tag" content="workchain"><meta property="article:tag" content="audio-tooling"><meta property="article:tag" content="verification"><!-- Twitter/X card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Process Registries, and Workchain · Daniel Ramirez"><meta name="twitter:description" content="I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard."><meta name="twitter:image" content="https://blog.daniel-ramirez.io/images/og-card.png"><meta name="twitter:image:alt" content="Daniel Ramirez — Sound &#38; Systems"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Process Registries, and Workchain","description":"I kept building the same folder over and over. It turns out the folder has a name, a sixty-year literature, and one property that separates it from a very tidy hoard.","datePublished":"2026-08-07T00:00:00.000Z","dateModified":"2026-08-07T00:00:00.000Z","author":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"publisher":{"@type":"Person","name":"Daniel Ramirez","url":"https://daniel-ramirez.io"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/"},"url":"https://blog.daniel-ramirez.io/posts/process-registries-and-workchain/","image":"https://blog.daniel-ramirez.io/images/og-card.png","inLanguage":"en-US","keywords":"process, workchain, audio-tooling, verification"}</script><!-- Self-hosted, cookieless analytics (Umami on the homelab). do-not-track honoured.
+         `is:inline` is REQUIRED: without it Astro treats this as a bundled module and
+         drops the external src, silently shipping no tracker at all. --><script defer src="https://umami.lufshq.com/script.js" data-website-id="08b33ed2-1562-4bfd-8957-f5fd8098a456" data-do-not-track="true"></script><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500;600;700;800&family=Public+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="/_astro/about.1CwW8UiW.css">
+<style>.freeform-back[data-astro-cid-kmybp27k]{position:absolute;top:1rem;left:clamp(1.1rem,4vw,2.4rem);z-index:10;font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);mix-blend-mode:difference}.freeform-back[data-astro-cid-kmybp27k]:hover{color:var(--accent-txt)}.freeform-stage[data-astro-cid-kmybp27k]{position:relative;min-height:100vh}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.BPKbrU1Y.css"></head> <body> <div class="cur-dot" aria-hidden="true"></div> <div class="cur-ring" aria-hidden="true"></div> <div class="source-scrim" id="scrim" aria-hidden="true"></div>  <!-- two-stage circular dark/light toggle; Skyward glyphs (one committed SVG per mode) --> <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle colour theme" title="Toggle colour theme"> <span class="ic ic-moon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 3.6 A5 5 0 1 0 14.4 13.2 A3.7 3.7 0 1 1 14.4 3.6 Z" fill="#d9a23d"></path><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#efece0"></path></svg></span> <span class="ic ic-sun" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.4" r="3" fill="#b07d1e"></circle><g stroke="#b07d1e" stroke-width="1.6"><line x1="12" y1="1.9" x2="12" y2="3.5"></line><line x1="5.8" y1="8.4" x2="7.3" y2="8.4"></line><line x1="18.2" y1="8.4" x2="16.7" y2="8.4"></line><line x1="7.1" y1="3.5" x2="8.1" y2="4.5"></line><line x1="16.9" y1="3.5" x2="15.9" y2="4.5"></line></g><path d="M3.4 20.6 C3.4 18 5.5 17 7.1 17.5 C7.7 15 10.3 14.8 11.5 16.3 C12.9 15.5 14.9 16.3 15 17.9 C16.9 17.7 18.3 19.1 17.9 20.6 Z" fill="#23211d"></path></svg></span> </button> <div class="app"> <aside class="site-sidebar" id="sidebar"> <!-- centered brand: name -> cloud mark -> tagline --> <a href="/" class="site-brand" data-hover> <span class="site-brand__name">Daniel Ramirez<span class="dot">.</span></span> <span class="site-brand__mark"> <img src="/images/fbf9e2_cloud-profile.png" alt="Daniel Ramirez" width="96" height="96"> </span> </a> <p class="site-brand__tagline">Sound &amp; Systems</p> <nav class="site-nav" aria-label="Primary"> <ul> <li> <a href="/about/" data-hover> About </a> </li><li> <a href="/posts/" data-hover> Posts </a> </li><li> <a href="/resources/" data-hover> Resources </a> </li><li> <a href="https://resume.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Resume<span>↗</span> </a> </li><li> <a href="https://portfolio.lufs.audio/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Portfolio<span>↗</span> </a> </li><li> <a href="https://deck.daniel-ramirez.io/" data-hover target="_blank" rel="noopener noreferrer" data-ext> Deck<span>↗</span> </a> </li> </ul> </nav> <ul class="site-socials" id="socials"> <li> <a href="mailto:daniel@danialrami.com" target="_blank" rel="noopener noreferrer" data-hover>Email</a> </li><li> <a href="https://github.com/danialrami" target="_blank" rel="noopener noreferrer" data-hover>GitHub</a> </li><li> <a href="https://www.instagram.com/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>Instagram</a> </li><li> <a href="https://www.linkedin.com/in/danialrami/" target="_blank" rel="noopener noreferrer" data-hover>LinkedIn</a> </li><li> <a href="https://bsky.app/profile/danirami.bsky.social" target="_blank" rel="noopener noreferrer" data-hover>Bluesky</a> </li> </ul> </aside> <main class="site-main">  <div class="view-pad"> <div class="post__bar reveal"> <a class="back-link" href="/posts/" data-hover>← All posts</a> <button class="btn ghost" id="viewSource" aria-pressed="false" data-hover>{ } View source</button> </div> <div class="reader" id="reader"> <article class="post reader__rendered" id="rendered" data-format="analysis"> <header class="post__header reveal">  <h1 class="post__title">Process Registries, and Workchain</h1> <time class="post__date" datetime="2026-08-07">August 7, 2026</time>     </header>    <div class="prose reveal"> <p>Up until the past year or so, whenever I had an idea for a tool, I’d just make a new subfolder in ~/repos and sketch it out — I bet that’s pretty common. The tool can be whatever, but one of my favorite/most useful tools to make are scripts which can finalize a set of audio file deliverables to guarantee that they’re up to a client’s spec. A common deliverable requirement might look like this, let’s say for vocal speech files:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="md"><code><span class="line"><span style="color:#E1E4E8">Spec:</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">Format:</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> WAV (.wav)</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> 48 kHz</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> 24-bit</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> True mono (1 channel)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">Levels:</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> Integrated loudness: -22 to -20 LUFS (EBU R128)</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> True peak: -6 dBFS to -3 dBFS</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">Quality:</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> No background noise (no hiss, rumble, ambient)</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> No reverb (no room reverberation or echo)</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> No pops or clicks (no transient artifacts)</span></span>
+<span class="line"><span style="color:#FFAB70">-</span><span style="color:#E1E4E8"> No other artifacts (no distortion, dropouts, processing artifacts)</span></span></code></pre>
+<p>This is super helpful most of the time! Oftentimes, when working through hundreds or thousands of audio files, mistakes can fall through the cracks — maybe one of the audio files came out stereo somehow, or the normalization isn’t quite right out of the DAW, or something else. Being able to have another round of benchmarking against a specific class of output is great — it let’s me do my thing during the authoring process knowing without a doubt that the set of deliverables is going to be given to the client exactly right. That way, my baseline is hit, and I can focus on being creative.</p>
+<p>Verifying every one of them by hand is a non-starter, and half a dozen ffprobe one-liners is a script that’s gonna live and die in one client’s folder. A single pass at the terminal is enough to catch the format half of the spec:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">$</span><span style="color:#9ECBFF"> ffprobe</span><span style="color:#79B8FF"> -v</span><span style="color:#9ECBFF"> error</span><span style="color:#79B8FF"> -select_streams</span><span style="color:#9ECBFF"> a:0</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    -show_entries</span><span style="color:#9ECBFF"> stream=sample_rate,channels,bits_per_raw_sample</span><span style="color:#79B8FF"> \</span></span>
+<span class="line"><span style="color:#79B8FF">    -of</span><span style="color:#9ECBFF"> csv=p=</span><span style="color:#79B8FF">0</span><span style="color:#9ECBFF"> nominal_voice.wav</span></span>
+<span class="line"><span style="color:#B392F0">48000,1,24</span></span></code></pre>
+<p>Sample rate, channels, bit depth, one line — and if that middle number ever reads <code>2</code> on a file meant to be mono, there’s your problem staring back at you. That’s the whole promise of benchmarking against a spec: you don’t have to re-audition four minutes of audio to know it’s wrong. You run a string comparison against a target and the file either matches or it doesn’t.</p>
+<p>The thing is, eventually I have random deliverable audit scripts all over ~/repos, like ~/repos/client-A-deliverables, ~/repos/client-N-deliverables. The scripts themselves were almost always the same logic, and the reason I never reused a folder is usually because by the time I needed the script again, I couldn’t remember where it was in ~/repos lmfao. Funny to admit, but yeah.</p>
+<p>It’s also not the first time I’ve written about this sort of struggle! It’s the thing I’ve noticed that I need to improve, and I’ve written about it before from the other direction. A while back I got tired of rewriting the same set of ffmpeg commands for batch conversion and <a href="https://blog.daniel-ramirez.io/posts/ffmpeg-and-mcp/">wrapped it in an MCP server</a> so I could stop, which actually worked pretty well for a while! What I didn’t notice at the time is that it only moved the problem up one floor. Eventually, I stopped losing the <em>commands</em> and started losing the <em>pipelines</em> — the specific ordered arrangement of steps that got a batch of tracks from a session folder to something I’d actually deliver. So I was sorta back in the same place.</p>
+<p>It turns out, the unit I kept losing was always the process, with the files being out the door and the project put away before I ever addressed it. And “write it down” turns out to be a much weaker fix than it sounds, because a written-down process in a folder of nineteen other written-down processes isn’t really a problem solved, just a problem hoarded. Those are different things, and this post is gonna try to untangle this and end with the solution that’s been working for me throughout this year.</p>
+<h2 id="this-is-a-post-about-process">This is a post about process</h2>
+<p>My flow has really needed some work, so I went back to the basics. I started by thinking “how can I make this generalizeable?” and eventually, I stopped to consider a bigger question “can I make a tool that can generalize process?” Why the heck would I do that??</p>
+<p>When I say a <em>process</em>, I’m talking about one idea made runnable. It’s not a script per se — a script is an implementation detail, so my process is definitely going to <em>include</em> a script! But I’m not going far enough down the generalization rabbit hole that I’m going to reinvent a computer, lmfao. The process, instead, is the mechanism: normalize to a loudness target; separate a mix into stems; derive an image from a spectrogram; take a rhythmic cell and phase it against itself. One idea, small enough to name, general enough to point at different inputs. For me, that looks like a signal chain.</p>
+<p>The way I see it, three properties turn an idea into a process you can keep:</p>
+<ul>
+<li>
+<p><strong>It’s pure and parameterized:</strong> Given the same inputs and the same knobs, it produces the same output. Nothing hidden, no ambient state, no “well it worked on my machine last March.”</p>
+</li>
+<li>
+<p><strong>It has an anchor:</strong> Something makes the run reproducible. In probablistic work that’s a seed. In transformational work — which is what audio processing is, almost entirely — it’s the content hash of the input. Same bytes in, same bytes out, forever.</p>
+</li>
+<li>
+<p><strong>It carries a manifest, not just code:</strong> A declaration of what it is, what its parameters are, what it promises about its output, and how you’d check. The manifest is the part that makes a process a citizen of something larger instead of a loose file.</p>
+</li>
+</ul>
+<p>When I first thought about that last one, I didn’t really take it as cornerstone. But, it turns out none of this were original ideas, and finding the historical corpus was the useful part.</p>
+<p>Gottfried Michael Koenig was building software to compose with at Utrecht in the mid-1960s — Project 1 in 1964, Project 2 in 1966 — and he called what he was doing a <em>composition process</em>. In his essay on it he writes that “composition is the application of a grammar which generates the structures of a piece, whether the composer is aware of an explicit grammar or not” (<a href="https://koenigproject.nl/wp-content/uploads/2019/08/Composition_Processes.pdf">PDF</a>), which is a claim that puts musical context to the same ideas written above. He also states the design principle better than I’ve managed to thus far: the dividing line between the composer and the automaton, he says, should run “in such a fashion as to provide the highest degree of insight into musical-syntactic contexts.” This resonates with my distinction from last week’s article about what’s really missing in a fully generative pipeline: “musical-syntactic contexts” is the exact piece you’re losing when you take your hands off the wheel from a composition, and I think Koenig laid a foundation for what process looks like today. His insight is sixty years old and still razor-sharp, because it names what you’re optimizing <em>for</em> rather than just what you’re avoiding.</p>
+<h2 id="a-registry-not-a-collection">A registry, not a collection</h2>
+<p>Here’s my argument: once you have a handful of processes written down as proper self-contained things, the obvious move is to collect them: put them in a directory, give each one a folder, boom bam done! You have something that <em>looks</em> finished 👏 It might even look like the solution! But in fact, I’m arguing that it’s still one property short.</p>
+<p>A folder of processes is like a parts bin. If I take a look inside, I can see the parts in front of me, but what exactly am I looking at? It’s just a pile for now, and it slowly grows bigger as I add more processes over time, until it kills the ability to find anything and I’m back where I started. I needed an indexing tool that sits on top, which can also hold each process accountable as well, to defend its own right to be included. Luckily, I’m not describing anything new: it’s just a registry, and it’s why the third bullet point above — the manifest — is actually not optional.</p>
+<p>Three more bullets for you, to illustrate the mechanics:</p>
+<ul>
+<li>
+<p><strong>The filesystem is the registry:</strong> One folder per entry, and the folder is the source of truth — not a database or a README. You add a process by dropping in a folder, and nothing else has to be updated by hand, which matters because the thing that often fails to get updated by hand are the docs.</p>
+</li>
+<li>
+<p><strong>The index is generated, never written:</strong> A tool walks the folders and emits the catalog. Then the same tool runs in CI with a <code>--check</code> flag and fails the build if the generated catalog and the folders disagree.</p>
+<ul>
+<li>This sounds like housekeeping, but it really isn’t: it’s what makes the collection <em>trustworthy as a collection</em>, because “what exists here” stops being a claim anyone maintains and becomes a fact anyone can recompute.</li>
+</ul>
+</li>
+<li>
+<p><strong>Each entry declares a contract:</strong> Not just “here’s what I do” but “here’s what must be true of my output, and here’s the machine-checkable version of that.” This is the part that separates a registry from a very tidy hoard, and it’s where I’ll spend the rest of this post.</p>
+</li>
+</ul>
+<p>Worth being direct here: The failure mode of a beautiful collection is that it rots quietly over time (and also that you don’t ship, which I’ll briefly get to later). Six months in, half the entries no longer do what their READMEs say, and nothing anywhere documented what changed between commits. I can’t tell you how many times I’ve played myself like this! I promise the solution isn’t just better documentation hygiene — our problem is a growing collection that scales and changes, so we need to build a system that gives it that space from the get-go.</p>
+<h2 id="so-i-built-one-for-audio">So I built one, for audio</h2>
+<p>The tool I’m talking about here became a thing I’m building called Workchain. It’s a YAML-driven audio processing engine, and it’s where I learned all of the above the hard way, in the wrong order, many many times.</p>
+<p>The shape is what I’ve been describing. Each process in Workchain is called a <em>component</em>, a folder in the registry that must contain these three files: a <code>step.yaml</code> that declares the contract, a <code>run.sh</code> that does the work, and a README. With the doc, the script, and the contract in place, I’ve turned a parts bin into composable blocks, that I can pass context into and out of freely. That’s the signal path!</p>
+<p>So, in the context of the tool, a <em>chain</em> is a YAML file that lists components in order. A lean engine reads the chain, runs each component, and threads a JSON context between them so each step knows what the last one produced. <code>components/</code> on disk <em>is</em> the registry; a generator walks it and emits <code>components/index.json</code>, which is stamped <code>GENERATED — do not hand-edit</code> and checked in CI so it can’t drift from the folders. A registry suddenly turns into a universal chain for whatever audio process you can make a contract for, it’s sick.</p>
+<p>Right now, there are three ways to drive it — a Bash engine, a Node CLI, and a Python MCP server, with the same YAML parser runs underneath all three. Below is a real chain, verbatim. This one runs a release through normalization, makes little artwork from a spectrogram of the waveform + an identicon, builds a Spotify Canvas, and catalogs the result:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Astro Catalog"</span></span>
+<span class="line"><span style="color:#85E89D">description</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"Prep audio files for Astro"</span></span>
+<span class="line"><span style="color:#85E89D">version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"1.0"</span></span>
+<span class="line"><span style="color:#85E89D">engine_version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"2.0"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">globals</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  lufs_target</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">-14</span></span>
+<span class="line"><span style="color:#85E89D">  saturation</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">0.5</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#85E89D">steps</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">normalization</span></span>
+<span class="line"><span style="color:#85E89D">    enabled</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#85E89D">    params</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      target_lufs</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">-14</span></span>
+<span class="line"><span style="color:#85E89D">      two_pass</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#85E89D">      lra</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">7</span></span>
+<span class="line"><span style="color:#85E89D">      true_peak</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">-1.5</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">artwork_01</span></span>
+<span class="line"><span style="color:#85E89D">    enabled</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#85E89D">    params</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      saturation</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">0.5</span></span>
+<span class="line"><span style="color:#85E89D">      width</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">1000</span></span>
+<span class="line"><span style="color:#85E89D">      height</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">1000</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">canvas_01</span></span>
+<span class="line"><span style="color:#85E89D">    enabled</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#85E89D">    params</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">      loop_count</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">8</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">  - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">catalog</span></span>
+<span class="line"><span style="color:#85E89D">    enabled</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#85E89D">    params</span><span style="color:#E1E4E8">: {}</span></span></code></pre>
+<p>That’s literally the whole recipe! If processes are the vocabulary, this is a sentence. The last step hashes the finished audio with SHA-256 and takes the first eight hex characters as a catalog number, which is why everything on <a href="https://catalog.lufs.audio">catalog.lufs.audio</a> is named something like <code>lufs-290c4817</code>. The identity of a release is the content of the release. Rename the file, move it, back it up wrong — the number still finds it. Plus, the deliverable example above? Each spec is a recipe too, so a deliverable type becomes a profile instead of a repo I’ll lose the second I look away.</p>
+<iframe src="https://catalog.lufs.audio/embed/lufs-290c4817" width="100%" height="152" frameborder="0" loading="lazy" allow="autoplay; encrypted-media" style="border:none;border-radius:14px;max-width:456px"></iframe>
+<h2 id="the-bug-that-made-me-believe-any-of-this">The bug that made me believe any of this</h2>
+<p>Now the part that turned “registry” from a filing metaphor into an argument I actually hold.</p>
+<p>The <code>normalization</code> component measures its output. Of course it does — it’s a loudness normalizer, measuring is the job. It runs a two-pass <code>loudnorm</code>, measures the final integrated LUFS, logs the number, and writes it into a metadata JSON right next to the output file.</p>
+<p>In my first iteration of this tool, it exited 0 after this step, but it should’ve compared the number to the target! 🤦🥹🥀</p>
+<p>The right value was sitting in the JSON, measured and ignored. If the normalizer undershot by four LU — on a heavily limited master, say, which is exactly the material where this happens — the component would produce a file, report success, write the evidence of its own failure to disk, and hand the file downstream where the artwork generator and the catalog hasher would unquestioningly treat it as the finished master.</p>
+<p>So, that was the impetus of my whole thesis, in one file, and it’s why the contract isn’t optional in a process registry. Here’s the verification block that closes it, verbatim from <code>components/normalization/step.yaml</code>:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="yaml"><code><span class="line"><span style="color:#85E89D">verify</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#85E89D">  schema_version</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">"1.0"</span></span>
+<span class="line"><span style="color:#85E89D">  outputs</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">primary_output</span></span>
+<span class="line"><span style="color:#85E89D">      assert</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">exists</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">non_empty</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">audio_valid</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">name</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">loudness_metadata</span></span>
+<span class="line"><span style="color:#85E89D">      assert</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">exists</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">non_empty</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">json_valid</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">      json_has</span><span style="color:#E1E4E8">: [</span><span style="color:#9ECBFF">target_lufs</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">final_lufs</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#85E89D">  post_conditions</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#E1E4E8">    - </span><span style="color:#85E89D">id</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">integrated_loudness_on_target</span></span>
+<span class="line"><span style="color:#85E89D">      check</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">audio_lufs_within</span></span>
+<span class="line"><span style="color:#85E89D">      output</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">primary_output</span></span>
+<span class="line"><span style="color:#85E89D">      target_param</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">target_lufs</span></span>
+<span class="line"><span style="color:#85E89D">      tolerance</span><span style="color:#E1E4E8">: </span><span style="color:#79B8FF">1.0</span></span></code></pre>
+<p>The important word is <em>independently</em>. The verifier doesn’t read <code>final_lufs</code> out of the component’s own metadata and trust it. It re-measures the output file with ffmpeg and compares that to the requested target, within a tolerance of 1.0 LU. If the step missed, the step fails, and the chain stops rather than flowing a bad master into the next component. The comment in that file names the original bug out loud, which I like more than I expected to. The repo remembers being wrong!</p>
+<p>So far, I have eighteen components on <code>main</code> right now: normalization was an easy win early-on for this kind of tool, but since then I’ve also added stem separation, embedding with CLAP for a sound library indexer, an acoustic encoder for modem-like transmission, and perturbation to shield my audio from AI-training. All of the components declare their own contracts just like above, and some go beyond structural checks into real numeric or relational assertions: normalization hits its target; the perturbation component preserves duration; stem separation both preserves duration and recombines to the source; the acoustic encoder survives being played out loud and recorded back.</p>
+<p>That last one is my favorite because it’s the honest shape of the whole idea. You can’t assert the correct output of a lossy acoustic round-trip — there isn’t one. So you assert what must survive it.</p>
+<h2 id="steve-reich-got-there-in-1968">Steve Reich got there in 1968</h2>
+<p>The thing I keep circling around is the idea that “it ran” and “it’s right” are very different claims, and software culture has spent decades conflating them because exit codes are cheap, and verifiable correctness is painful.</p>
+<p>Reich wrote an essay in 1968 called “Music as a Gradual Process” that touches on these ideas in a different medium. His complaint about the serialists and about Cage’s chance procedures was that the process was real but <em>inaudible</em> — you could not hear the structure, so the structure’s correctness was unfalsifiable by the only instrument that matters, our ears. Here’s what he wanted instead: “a compositional process and a sounding music that are one and the same thing.” And then a banger: <a href="https://ccrma.stanford.edu/courses/220b-winter-2024/readings/Reich_Gradual-Process.pdf">“I don’t know any secrets of structure that you can’t hear.”</a></p>
+<p>A component that exits 0 and produces no audible error is exactly the thing he was arguing against. The process ran, but you can’t hear that it was right. And unlike Reich, I can’t always make audibility the test, because some processes don’t output audible data. Plus, the workchain is meant to run on thousands of audio files at a time (for a game, or for an app) — that’s the entire point of automating it lmfao. So the contract is the rock-solid stand-in, checking in on every parameter to confirm that what I’m asking for on the way in is exactly what I’m getting on the way out.</p>
+<h2 id="heres-where-im-revving">Here’s where I’m revving</h2>
+<p>Workchain still needs work in three places:</p>
+<ul>
+<li>
+<p><strong>The chain isn’t verified:</strong> Every step is, but right now the chain isn’t. It’s an extra level of security which I haven’t wired in, but I think it’s worth doing in the next rev. A chain “succeeds” when no step failed, which is a different and kinda weaker claim. Nothing currently stops the artwork generator from deriving its image from the pre-normalization file, or the catalog hasher from stamping the wrong stage. Each component would be individually honest and the release would still be wrong, which is the exact class of failure the whole thing exists to prevent, one level up.</p>
+</li>
+<li>
+<p><strong>Signing is not the same as trust:</strong> I have this idea in my head that I’m wiring into Workchain, to show me at a glance which components are legit and which are beta. Right now, the tier ladder goes <em>unverified → verified → certified</em>, where certified means a trusted author signs the component’s definition hash with ed25519. Only two of the three tiers are real today.</p>
+<ul>
+<li>The third one is the part where I’m most at odds against someone I agree with. Ivan Illich’s convivial tools, in <a href="https://ratical.org/collapsologie/ToolsForConviviality1973.pdf"><em>Tools for Conviviality</em></a>, are ones that “do not require previous certification of the user” — and the whole book is about how credentialing machinery ends up manufacturing the dependency it claims to relieve. I can point out that I want to certify <em>components</em>, but even still I don’t think it’s a complete answer, tbh. So this bun is still in the oven for now.</li>
+</ul>
+</li>
+<li>
+<p><strong>A registry is not a theory.</strong> Peter Naur wrote in 1985 that “the proper, primary aim of programming is, not to produce programs, but to have the programmers build theories” — and that documentation is, in his words, an auxiliary and secondary product (<a href="https://pages.cs.wisc.edu/~remzi/Naur.pdf">PDF</a>). Which is a direct shot at the idea that writing the process down is the same as keeping it. If the theory lives in me and the manifest is only its shadow, then a registry I’ve forgotten how to reason about is already dead, however green its CI is. I don’t have a fix for that. I have a habit of writing the <em>why</em> into the component README and hoping it’s enough, and Naur would tell me it isn’t.</p>
+</li>
+</ul>
+<h2 id="a-very-tidy-hoard">A very tidy hoard</h2>
+<p>Last thing I’ll say: the idea of a “process registry” has now shown up in three places in my work without me planning it. Audio is the Workchain above. I’ve also written a registry of compositional processes — phasing, isorhythm, sieves, change-ringing, a dozen more — each a pure function of parameters and a seed, and each verified by a structural invariant in a test. Finally, I’m also working on a set of visual processes that are the same idea again with pixels and time instead of samples. The animation in on the posts/ page of this website was made with that tool! (:</p>
+<p>It’s the same six moving parts every time: a shared kernel, the processes, the registry, the recipes, the handoff between stages, and the verification gate.</p>
+<p>Three independent media landing on one architecture feels like evidence of something fundamental, but I want to be careful with that idea because there’s a much less flattering explanation that fits just as well: they all have the same author, and this is simply how this boi thinks. That explains the convergence completely and proves nothing about whether the shape is right for anybody else. I’m holding it as an accurate description of things I’ve built, and it’s becoming my house style going forward.</p>
+<p>I mentioned this before, but I’ll reiterate and confess: collecting process and experimenting with how they fit together in chains is really really fun, and for me specifically, I’ve noticed a failure mode in this too. I am extremely capable of spending a month making the parts bin beautiful and then not really shipping lol. A growing, elegant, unshipped registry is not the goal.</p>
+<p>Laurie Spiegel is the version of this I think about. She wrote Music Mouse in 1986, maintained it herself for decades, and it eventually just stopped — sat on Mac OS 9 until Eventide picked it up and <a href="https://www.theverge.com/report/879819/laurie-spiegel-is-celebrating-40-of-music-mouse-with-a-modern-revival">re-released it in February</a>, forty years on. Her reason for handing it over is the least romantic and most useful sentence in that interview: “My main thing is really composing music, and I have an active enough career doing that to not have enough time to do coding as well.” Got my ass! She also takes the trouble to say Music Mouse “is not a generative algorithm or an ‘AI’” — a distinction she’s been drawing since before, well, you know.</p>
+<p>So there’s the whole tension in one person. Build the tool because it lets you do the thing. Don’t let the tool become the thing, even if feels good to do so.</p>
+<p>I’m going to release Workchain in the future with a few of the most useful components that I’ve made so far 👏 more soon.</p>
+<!-- Sources (direct primary links, verified 2026-08-06): -->
+<ul>
+<li><a href="https://koenigproject.nl/wp-content/uploads/2019/08/Composition_Processes.pdf">https://koenigproject.nl/wp-content/uploads/2019/08/Composition_Processes.pdf</a></li>
+<li><a href="https://ccrma.stanford.edu/courses/220b-winter-2024/readings/Reich_Gradual-Process.pdf">https://ccrma.stanford.edu/courses/220b-winter-2024/readings/Reich_Gradual-Process.pdf</a></li>
+<li><a href="https://pages.cs.wisc.edu/~remzi/Naur.pdf">https://pages.cs.wisc.edu/~remzi/Naur.pdf</a></li>
+<li><a href="https://ratical.org/collapsologie/ToolsForConviviality1973.pdf">https://ratical.org/collapsologie/ToolsForConviviality1973.pdf</a></li>
+<li><a href="https://www.theverge.com/report/879819/laurie-spiegel-is-celebrating-40-of-music-mouse-with-a-modern-revival">https://www.theverge.com/report/879819/laurie-spiegel-is-celebrating-40-of-music-mouse-with-a-modern-revival</a></li>
+<li><a href="https://catalog.lufs.audio">https://catalog.lufs.audio</a></li>
+<li><a href="https://blog.daniel-ramirez.io/posts/ffmpeg-and-mcp/">https://blog.daniel-ramirez.io/posts/ffmpeg-and-mcp/</a></li>
+<li><a href="https://blog.daniel-ramirez.io/posts/you-re-a-clock-i-m-a-clock/">https://blog.daniel-ramirez.io/posts/you-re-a-clock-i-m-a-clock/</a></li>
+<li><a href="https://blog.daniel-ramirez.io/posts/who-signs-the-song/">https://blog.daniel-ramirez.io/posts/who-signs-the-song/</a></li>
+</ul> </div>    </article> <aside class="reader__source" id="sourcePane" aria-hidden="true" data-src-url="/posts/process-registries-and-workchain.md"> <div class="src-inner"> <div class="reader__source-head"> <span><b>source</b> · process-registries-and-workchain.md</span> <button class="source-x" id="srcClose" data-hover>esc ✕</button> </div> <pre id="srcPre" data-state="idle">Loading source…</pre> </div> </aside> </div> </div> <script>
+      (function () {
+        var btn = document.getElementById('viewSource'); if (!btn) return;
+        var scrim = document.getElementById('scrim');
+        function isDesktop() { return matchMedia('(min-width:821px)').matches; }
+
+        /* The raw markdown lives at /posts/<slug>.md rather than inline in this page,
+           so it's fetched the first time source is opened and cached thereafter.
+           Resolves with the text; rejects are surfaced in the pane, never silent. */
+        var srcPromise = null;
+        function loadSource() {
+          if (srcPromise) return srcPromise;
+          var pane = document.getElementById('sourcePane');
+          var url = pane && pane.getAttribute('data-src-url');
+          srcPromise = fetch(url, { credentials: 'same-origin' })
+            .then(function (r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.text();
+            })
+            .catch(function (e) {
+              srcPromise = null; // allow a retry on next open
+              throw e;
+            });
+          return srcPromise;
+        }
+        /* Fill every <pre> that shows source (desktop pane + mobile panel). */
+        function fillSource(pre) {
+          if (!pre || pre.getAttribute('data-state') === 'ready') return;
+          loadSource().then(function (text) {
+            pre.textContent = text;
+            pre.setAttribute('data-state', 'ready');
+          }).catch(function () {
+            pre.textContent = 'Could not load source. Open ' +
+              (document.getElementById('sourcePane').getAttribute('data-src-url')) +
+              ' directly.';
+            pre.setAttribute('data-state', 'error');
+          });
+        }
+        var syncH = null;
+        function setupSync() {
+          teardownSync();
+          var a = document.getElementById('rendered'), b = document.getElementById('sourcePane'); if (!a || !b) return;
+          var lock = false;
+          function mk(from, to) { return function () { if (lock) return; lock = true; var den = (from.scrollHeight - from.clientHeight) || 1; var r = from.scrollTop / den; to.scrollTop = r * ((to.scrollHeight - to.clientHeight) || 0); requestAnimationFrame(function () { lock = false; }); }; }
+          var ha = mk(a, b), hb = mk(b, a); a.addEventListener('scroll', ha); b.addEventListener('scroll', hb); syncH = { a: a, b: b, ha: ha, hb: hb };
+        }
+        function teardownSync() { if (syncH) { syncH.a.removeEventListener('scroll', syncH.ha); syncH.b.removeEventListener('scroll', syncH.hb); syncH = null; } }
+        function toggleSplit(force) {
+          var reader = document.getElementById('reader'); if (!reader) return;
+          var on = (typeof force === 'boolean') ? force : !reader.classList.contains('split');
+          var rendered = document.getElementById('rendered');
+          var first = rendered ? rendered.getBoundingClientRect().left : 0;
+          reader.classList.toggle('split', on);
+          if (rendered) {
+            var last = rendered.getBoundingClientRect().left, dx = first - last;
+            if (dx) {
+              rendered.style.transition = 'none';
+              rendered.style.transform = 'translateX(' + dx + 'px)';
+              requestAnimationFrame(function () { rendered.style.transition = ''; rendered.style.transform = ''; });
+            }
+          }
+          var pane = document.getElementById('sourcePane'); if (pane) pane.setAttribute('aria-hidden', String(!on));
+          btn.setAttribute('aria-pressed', String(on));
+          btn.textContent = on ? '✕ Close source' : '{ } View source';
+          if (on) { fillSource(document.getElementById('srcPre')); setupSync(); }
+          else teardownSync();
+        }
+        function openSlide() {
+          var p = document.getElementById('slidePanel');
+          if (!p) {
+            p = document.createElement('aside'); p.className = 'source-panel'; p.id = 'slidePanel';
+            p.innerHTML = '<div class="source-panel__head"><span><b>view source</b></span><button class="source-x" id="slideX">esc ✕</button></div><pre data-state="idle">Loading source…</pre>';
+            document.body.appendChild(p);
+            p.querySelector('#slideX').addEventListener('click', closeSlide);
+          }
+          fillSource(p.querySelector('pre'));
+          requestAnimationFrame(function () { p.classList.add('open'); if (scrim) scrim.classList.add('open'); });
+        }
+        function closeSlide() { var p = document.getElementById('slidePanel'); if (p) p.classList.remove('open'); if (scrim) scrim.classList.remove('open'); }
+        btn.addEventListener('click', function () { isDesktop() ? toggleSplit() : openSlide(); });
+        var close = document.getElementById('srcClose'); if (close) close.addEventListener('click', function () { isDesktop() ? toggleSplit(false) : closeSlide(); });
+        if (scrim) scrim.addEventListener('click', closeSlide);
+        addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (isDesktop()) toggleSplit(false); else closeSlide(); } });
+
+        /* Unadvertised shortcut: `s` toggles source. Deliberately absent from the UI —
+           the button is the discoverable path; this is the shortcut for whoever knows
+           it's there. A bare key keeps it to one keystroke, which means it has to yield
+           wherever a letter key already means something: any modifier held (so browser
+           and OS chords like Cmd+S are untouched), auto-repeat from a held key, and
+           keystrokes aimed at a field or contenteditable. Mirrors the button exactly,
+           including the desktop-split vs mobile-panel branch. */
+        addEventListener('keydown', function (e) {
+          if (e.key !== 's' && e.key !== 'S') return;
+          if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.repeat) return;
+          var t = e.target;
+          if (t && (t.isContentEditable || /^(?:INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+          e.preventDefault();
+          if (isDesktop()) { toggleSplit(); return; }
+          var panel = document.getElementById('slidePanel');
+          (panel && panel.classList.contains('open')) ? closeSlide() : openSlide();
+        });
+      })();
+    </script> <footer class="site-footer"> <span class="cloud-mark" aria-hidden="true"> <svg class="logo-cloud" viewBox="0 0 200 200" aria-label="Daniel Ramirez — cloud mark"> <path d="M100,30 C130,30 150,50 150,80 C180,80 200,100 200,130 C200,160 180,180 150,180 L50,180 C20,180 0,160 0,130 C0,100 20,80 50,80 C50,50 70,30 100,30 Z" fill="#e8e4d4" stroke="#201e1b" stroke-width="5" stroke-opacity="0.3"></path> <circle class="eye" cx="70" cy="100" r="15" fill="#201e1b"></circle> <circle class="eye" cx="130" cy="100" r="15" fill="#201e1b"></circle> </svg> </span>  <div class="foot-txt"> <a href="https://daniel-ramirez.io" target="_blank" rel="noopener noreferrer">Daniel Ramirez</a> <small>© 2026 LUFS Audio</small> </div>  <img class="vh-mark" src="/vh-blog-ring.svg" alt="lufs-vh verification mark for blog.daniel-ramirez.io" title="lufs-vh verification mark for blog.daniel-ramirez.io" width="64" height="64" loading="lazy" decoding="async"> </footer> </main> </div> <script>
+      (function () {
+        // custom uniform cursor (hidden on touch)
+        var d = document.querySelector('.cur-dot'), r = document.querySelector('.cur-ring');
+        if (d && r && !(('ontouchstart' in window) || navigator.maxTouchPoints > 0)) {
+          var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
+          addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; d.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)'; }, { passive: true });
+          (function l() { rx += (mx - rx) * .18; ry += (my - ry) * .18; r.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)'; requestAnimationFrame(l); })();
+          addEventListener('mouseover', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.add('hot'); });
+          addEventListener('mouseout', function (e) { if (e.target.closest('a,button,[data-hover]')) r.classList.remove('hot'); });
+        } else if (d && r) { d.style.display = r.style.display = 'none'; }
+
+        // scroll reveal, with a force-show fallback so content is never stuck hidden
+        var els = document.querySelectorAll('.reveal');
+        if (els.length) {
+          var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: .08 });
+          els.forEach(function (el) { io.observe(el); });
+          setTimeout(function () { els.forEach(function (el) { el.classList.add('in'); }); }, 1000);
+        }
+
+        // mobile: relocate socials from the top bar to the bottom of the page
+        var socials = document.getElementById('socials'), sidebar = document.getElementById('sidebar');
+        function placeSocials() {
+          if (!socials || !sidebar) return;
+          if (matchMedia('(max-width:820px)').matches) {
+            if (socials.parentElement !== document.body) { document.body.appendChild(socials); socials.classList.add('socials--bottom'); }
+          } else {
+            if (socials.parentElement !== sidebar) { sidebar.appendChild(socials); socials.classList.remove('socials--bottom'); }
+          }
+        }
+        placeSocials();
+        var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(placeSocials, 150); });
+      })();
+    </script> <script>
+      (function(){var root=document.documentElement,b=document.getElementById('themeBtn');if(!b)return;
+        function label(){var d=root.getAttribute('data-theme')==='dark';b.title=d?'Dark — switch to light':'Light — switch to dark';b.setAttribute('aria-label',b.title);}
+        label();
+        b.addEventListener('click',function(){var next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);try{localStorage.setItem('dr-theme',next);}catch(e){}label();});
+      })();
+    </script> </body> </html>
